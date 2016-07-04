@@ -56,6 +56,12 @@ module.exports.handler = (event, context, callback) => {
 
     case "deleteOneSurvey":
       // DELETE /api/v1/mgnt/surveys/<surveyid>
+      // TODO: validate requester role Check if authAccountid is authorized to create a new survey
+      // Authenticated: Yes
+      return survey.deleteOneSurvey({
+        accountid: event.accountid,
+        surveyid: event.surveyid
+      }, callback);
       break;
 
     default:

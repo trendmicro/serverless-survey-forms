@@ -355,7 +355,6 @@ describe("Interface to get list survey model from data store with error", functi
   });
 });
 
-
 describe("Interface to update one survey model in data store", function() {
   let accountid = "this is fake account";
   let subject = "this is fake subject";
@@ -488,3 +487,94 @@ describe("Interface to update one exist survey model in data store with error", 
   });
 });
 
+describe("Interface to delete one survey model from data store successfully", function() {
+  let accountid = "this is fake account";
+  let subject = "this is fake subject";
+  let surveymodel = "this is fake survey model";
+  let surveyid = null;
+
+  before("Insert one dummy record", function(done) {
+    //let obj = new survey(aws);
+    let event = {
+      accountid: accountid,
+      subject: subject,
+      survey: surveymodel
+    };
+    survey.addOneSurvey(event, function(err, data) {
+      if (err) throw err;
+      surveyid = data.surveyid;
+      done();
+    });
+  });
+
+  describe("#deleteOneSurvey", function() {
+    describe("When deleting exist survey model with complete and normal parameters", function() {
+      it("should response successfully", function(done) {
+        let event = {
+          accountid: accountid,
+          surveyid: surveyid
+        };
+        survey.deleteOneSurvey(event, function(error, response) {
+          expect(error).to.be.null;
+          expect(response).to.be.null;
+          done();
+        });
+      });
+    });
+    describe("When deleting non-exist survey model with complete and normal parameters", function() {
+      it("should response successfully", function(done) {
+        let event = {
+          accountid: 'non-exist accountid',
+          surveyid: 'non-exist surveyid'
+        };
+        survey.deleteOneSurvey(event, function(error, response) {
+          expect(error).to.be.null;
+          expect(response).to.be.null;
+          done();
+        });
+      });
+    });
+  });
+});
+
+describe("Interface to delete one survey model in data store with error", function() {
+  describe("#deleteOneSurvey", function() {
+
+    // missing parameter(s)
+    let missingParams = [
+      // one parameter
+      {
+        desc: "with missing event.surveyid",
+        event: {
+          accountid: "this is fake account",
+        },
+        expect: /Error: 400 Bad Request/
+      }, {
+        desc: "with missing event.accountid",
+        event: {
+          surveyid: "this is fake survey model"
+        },
+        expect: /Error: 400 Bad Request/
+      },
+      // all parameters
+      {
+        desc: "with missing all parameters",
+        event: {},
+        expect: /Error: 400 Bad Request/
+      }
+    ];
+
+    missingParams.forEach(function(test) {
+      describe("When deleting one survey model " + test.desc, function() {
+        it("should response error", function(done) {
+          survey.deleteOneSurvey(test.event, function(error, response) {
+            expect(error).to.not.be.null;
+            expect(response).to.be.null;
+            error.should.match(RegExp(test.expect));
+            done();
+          });
+        });
+      });
+    });
+  });
+});

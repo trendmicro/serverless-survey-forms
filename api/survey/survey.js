@@ -281,7 +281,30 @@ module.exports = (() => {
    * None
    */
   const deleteOneSurvey = (event, callback) => {
-
+    let response = null;
+    // validate parameters
+    if (event.accountid  && event.surveyid && process.env.SERVERLESS_SURVEYTABLE) {
+      let docClient = new aws.DynamoDB.DocumentClient();
+      let params = {
+        TableName: process.env.SERVERLESS_SURVEYTABLE,
+        Key:{
+          accountid: event.accountid,
+          surveyid: event.surveyid
+        },
+      };
+      docClient.delete(params, function(err, data) {
+        if (err) {
+          console.error("Unable to delete an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          return callback(getDynamoDBError(err), null);
+        } else {
+          return callback(null, response); // Response will be an HTTP 200 with no content.
+        }
+      });
+    }
+    // incomplete parameters
+    else {
+      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
+    }
   };
 
   return {
@@ -289,6 +312,7 @@ module.exports = (() => {
 
     getOneSurvey : getOneSurvey,
     listSurveys: listSurveys,
+
     addOneSurvey : addOneSurvey,
     updateOneSurvey : updateOneSurvey,
     deleteOneSurvey : deleteOneSurvey,
