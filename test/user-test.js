@@ -250,8 +250,15 @@ describe("Interface to get one user model from data store", function() {
     });
   });
   describe("#getOneUser with error", function() {
-    // missing parameter(s)
     let missingParams = [
+      {
+        desc: "with not match any event.accountid",
+        event: {
+          accountid: 'not match any event.accountid'
+        },
+        expect: /Error: 404 Not Found/
+      },
+      // missing parameter(s)
       // one parameter
       {
         desc: "with missing event.accountid",
@@ -523,6 +530,87 @@ describe("Interface to update one user model in data store", function() {
       describe("When updating one user model " + test.desc, function() {
         it("should response error", function(done) {
           user.updateOneUser(test.event, function(error, response) {
+            expect(error).to.not.be.null;
+            expect(response).to.be.null;
+            error.should.match(RegExp(test.expect));
+            done();
+          });
+        });
+      });
+    });
+  });
+});
+
+describe("Interface to delete one user model from data store", () => {
+  let accountid = "this is dummy account",
+    username = "this is dummy user name",
+    email = "this is dummy email",
+    role = "this is dummy User";
+
+  before("Insert one dummy record", function(done) {
+    let event = {
+      accountid: accountid,
+      username: username,
+      email: email,
+      role: role
+    };
+    user.addOneUser(event, function(err, data) {
+      if (err) throw err;
+      done();
+    });
+  });
+
+  describe("#deleteOneUser successfully", () => {
+    describe("When deleting exist user model with complete and normal parameters", () => {
+      it("should response successfully", function() {
+        let event = {
+          accountid: accountid,
+          expect: /Error: 404 Not Found/
+        };
+        return new Promise((resolve, reject) => {
+          user.deleteOneUser(event, function (error, response) {
+            expect(error).to.be.null;
+            expect(response).to.not.be.null;
+            resolve(event);
+          });
+        }).then( (event) => {
+          return user.getOneUser(event, (error, response) => {
+            expect(error).to.not.be.null;
+            expect(response).to.be.null;
+            error.should.match(RegExp(event.expect));
+          });
+        });
+      });
+    });
+    describe("When deleting non-exist user model with complete and normal parameters", () => {
+      it("should response successfully", function(done) {
+        let event = {
+          accountid: 'non-exist accountid',
+        };
+        user.deleteOneUser(event, function(error, response) {
+          expect(error).to.be.null;
+          expect(response).to.not.be.null;
+          done();
+        });
+      });
+    });
+  });
+
+  describe("#deleteOneUser with error", () => {
+    let missingParams = [
+      // missing parameter(s)
+      // one parameter
+      {
+        desc: "with missing event.accountid",
+        event: {},
+        expect: /Error: 400 Bad Request/
+      },
+    ];
+
+    missingParams.forEach(function(test) {
+      describe("When deleting one user model " + test.desc, function() {
+        it("should response error", (done) => {
+          user.getOneUser(test.event, (error, response) => {
             expect(error).to.not.be.null;
             expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
