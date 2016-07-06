@@ -1,9 +1,14 @@
 'use strict';
 
-function user(aws) {
+module.exports = (() => {
+  let aws = null;
+
+  const initAWS = (AWS) => {
+    aws = AWS;
+  };
 
   // Convert DynamoDB error code into Error object
-  function getDynamoDBError(err) {
+  const getDynamoDBError = (err) => {
     if (err.statusCode === 400) {
       switch (err.code) {
         case "AccessDeniedException":
@@ -30,8 +35,44 @@ function user(aws) {
    * email      Email from authentication provider or sha2 of password for ${project}-${stage}-admin
    * role       Default role is "User" when a user grants permission to the system.
    */
-  this.getOneUser = function(event, callback) {
+  // todo This is for authentication not for api gateway.
+  const getOneUser = (event, callback) => {
+    let response = null;
+    // validate parameters
+    if (event.accountid && process.env.SERVERLESS_SURVEYTABLE) {
+      let docClient = new aws.DynamoDB.DocumentClient();
+      let params = {
+        TableName: process.env.SERVERLESS_USERTABLE,
+        Key: {
+          accountid: event.accountid,
+        }
+      };
 
+      docClient.get(params, function(err, data) {
+        if (err) {
+          // console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          return callback(getDynamoDBError(err), null);
+        } else {
+          if (data.Item) { // got response
+            // compose response
+            response = {
+              accountid: data.Item.accountid,
+              username: data.Item.username,
+              email: data.Item.email,
+              role: data.Item.role,
+            };
+            return callback(null, response);
+          } else {
+            // console.error("Unable to get an item with the request: ", JSON.stringify(params));
+            return callback(new Error("404 Not Found: Unable to get an item with the request: " + JSON.stringify(params)), null);
+          }
+        }
+      });
+    }
+    // incomplete parameters
+    else {
+      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
+    }
   };
 
   /*
@@ -51,8 +92,49 @@ function user(aws) {
    * email      Email from authentication provider or sha2 of password for ${project}-${stage}-admin
    * role       Default role is "User" when a user grants permission to the system.
    */
-  this.listUsers = function(event, callback) {
+  const listUsers = (event, callback) => {
+    let response = null;
+    // validate parameters
+    if (process.env.SERVERLESS_USERTABLE) {
+      let docClient = new aws.DynamoDB.DocumentClient();
+      let params = {
+        TableName: process.env.SERVERLESS_USERTABLE,
+        ProjectionExpression: "accountid, username, email, #role",
+        ExpressionAttributeNames: {
+          "#role": "role",
+        },
+      };
 
+      // continue querying if we have more data
+      if (event.startKey){
+        params.ExclusiveStartKey = event.startKey;
+      }
+      // turn on the limit in testing mode
+      if (event.limitTesting){
+        params.Limit = 1;
+      }
+
+      docClient.scan(params, function(err, data) {
+        if (err) {
+          // console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          return callback(getDynamoDBError(err), null);
+        } else {
+          // got response
+          // compose response
+          response = {};
+          response['users'] = data.Items;
+
+          // LastEvaluatedKey
+          if(typeof data.LastEvaluatedKey != "undefined"){
+            response['LastEvaluatedKey'] = data.LastEvaluatedKey;
+          }
+          return callback(null, response);
+        }
+      });
+    }
+    else {
+      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
+    }
   };
 
   /*
@@ -65,9 +147,9 @@ function user(aws) {
    * Response:
    * None
    */
-  this.addOneUser = function(event, callback) {
+  const addOneUser = (event, callback) => {
     // validate parameters
-    if (event.accountid && event.username && event.email &&
+    if (event.accountid && event.username && event.email && event.role &&
       process.env.SERVERLESS_USERTABLE) {
       let docClient = new aws.DynamoDB.DocumentClient();
       let params = {
@@ -75,13 +157,14 @@ function user(aws) {
         Item: {
           accountid: event.accountid,
           username: event.username,
-          email: event.email
+          email: event.email,
+          role: event.role
         }
       };
 
       docClient.put(params, function(err, data) {
         if (err) {
-          console.error("Unable to add a new user with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          //console.error("Unable to add a new user with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
           return callback(getDynamoDBError(err), null);
         } else {
           return callback(null, {});
@@ -100,12 +183,52 @@ function user(aws) {
    * accountid  accountid with authentication provider as prefix or default system ${project}-${stage}-admin
    * username   User name from authentication provider or "admin" for ${project}-${stage}-admin
    * email      Email from authentication provider or sha2 of password for ${project}-${stage}-admin
-   *
+   * role       Role
    * Response:
    * None
    */
-  this.updateOneUser = function(event, callback) {
+  const updateOneUser = (event, callback) => {
+    let response = {};
+    // validate parameters
+    if (event.accountid && process.env.SERVERLESS_SURVEYTABLE) {
+      let docClient = new aws.DynamoDB.DocumentClient();
+      let params = {
+        TableName: process.env.SERVERLESS_USERTABLE,
+        Key: {
+          accountid: event.accountid,
+        },
+        UpdateExpression: "set username = :username, email=:email, #role=:role",
+        ExpressionAttributeValues:{
+          ":username": event.username,
+          ":email": event.email,
+          ":role": event.role
+        },
+        ExpressionAttributeNames: {
+          "#role": "role"
+        },
+        "ConditionExpression": "attribute_exists(accountid)",
+        ReturnValues:"UPDATED_NEW"
+      };
 
+      docClient.update(params, function(err, data) {
+        if (err) {
+          if(err.code === "ConditionalCheckFailedException"){
+            //console.error("Unable to update an user with the request: ", JSON.stringify(params));
+            return callback(new Error("404 Not Found: Unable to update an not exist item with the request: " + JSON.stringify(params)), null);
+          }else{
+            //console.error("Unable to update an user with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+            return callback(getDynamoDBError(err), null);
+          }
+        } else {
+          // got response
+          return callback(null, response);
+        }
+      });
+    }
+    // incomplete parameters
+    else {
+      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
+    }
   };
 
   /*
@@ -116,9 +239,43 @@ function user(aws) {
    * Response:
    * None
    */
-  this.deleteOneUser = function(event, callback) {
-
+  const deleteOneUser = (event, callback) => {
+    let response = {};
+    // validate parameters
+    if (event.accountid && process.env.SERVERLESS_USERTABLE) {
+      let docClient = new aws.DynamoDB.DocumentClient();
+      let params = {
+        TableName: process.env.SERVERLESS_USERTABLE,
+        Key:{
+          accountid: event.accountid
+        },
+      };
+      docClient.delete(params, function(err, data) {
+        if (err) {
+          // console.error("Unable to delete an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          return callback(getDynamoDBError(err), null);
+        } else {
+          return callback(null, response); // Response will be an HTTP 200 with no content.
+        }
+      });
+    }
+    // incomplete parameters
+    else {
+      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
+    }
   };
-};
 
-module.exports = user;
+
+
+  return {
+    initAWS: initAWS,
+
+    getOneUser : getOneUser,
+    listUsers : listUsers,
+
+    addOneUser : addOneUser,
+    updateOneUser : updateOneUser,
+
+    deleteOneUser: deleteOneUser,
+  }
+})();

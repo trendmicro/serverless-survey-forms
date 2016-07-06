@@ -25,7 +25,9 @@
       "requestTemplates": {
         "application/json": {
           "apigw": "$${apiRequestTemplate}",
-          "startKey": "$input.params('startKey')"
+          "startKey": "$input.params('startKey')",
+          "authAccountid": "context.authorizer.principalId",
+          "op": "listUsers"
         }
       },
       "responses": "$${apiResponseTemplate}"
@@ -43,7 +45,10 @@
           "apigw": "$${apiRequestTemplate}",
           "accountid": "$input.json('$.accountid')",
           "username": "$input.json('$.username')",
-          "email": "$input.json('$.email')"
+          "email": "$input.json('$.email')",
+          "role": "$input.json('$.role')",
+          "authAccountid": "context.authorizer.principalId",
+          "op": "updateOneUser"
         }
       },
       "responses": "$${apiResponseTemplate}"
@@ -58,7 +63,10 @@
       "requestParameters": {},
       "requestTemplates": {
         "application/json": {
-          "apigw": "$${apiRequestTemplate}"
+          "apigw": "$${apiRequestTemplate}",
+          "accountid": "$input.params('accountid')",
+          "authAccountid": "context.authorizer.principalId",
+          "op" : "deleteOneUser"
         }
       },
       "responses": "$${apiResponseTemplate}"
