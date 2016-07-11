@@ -7,10 +7,12 @@ import $ from 'jquery';
 
 // Actions
 import * as QuestionsActions from '../../actions/questions';
+import * as EditQuestionIDActions from '../../actions/editQuestionID';
 
 import Design from '../../components/Design';
 import Control from '../../components/Control';
-import Description from '../../components/Form/Description';
+import Page from '../../components/Form/Page';
+import EditPanel from '../../components/EditPanel';
 
 class Create extends PureComponent {
 
@@ -23,28 +25,37 @@ class Create extends PureComponent {
     }
 
     render() {
-        const { questions, questionsActions } = this.props;
+        const { editQuestionID, editQuestionIDActions, questionsActions } = this.props;
         const ctrlProps = {
-            questionsActions: questionsActions
+            questionsActions
         };
-        // TODOS: define components
-        const list = [];
-        questions.forEach(function (item) {
-            if (item.type === 'description') {
-                list.push(<Description />);
-            } else {
-                list.push(JSON.stringify(item));
-            }
-        });
+        const editProps = {
+            editQuestionID,
+            editQuestionIDActions
+        };
 
         return (
             <div ref="root">
-                Create
                 <Design />
                 <Control {...ctrlProps} />
-                {list}
+                {editQuestionID !== '' ? <EditPanel {...editProps} /> : ''}
+                {this._renderPage()}
             </div>
         );
+    }
+
+    _renderPage() {
+        const { questions, editQuestionIDActions } = this.props;
+        const pageList = [];
+        questions.forEach((page, idx) => {
+            const pros = {
+                key: idx,
+                data: page,
+                editQuestionIDActions
+            };
+            pageList.push(<Page {...pros} />);
+        });
+        return pageList;
     }
 }
 
@@ -52,13 +63,15 @@ function mapStateToProps(state) {
     return {
         fbID: state.fbID,
         account: state.account,
-        questions: state.questions
+        questions: state.questions,
+        editQuestionID: state.editQuestionID
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        questionsActions: bindActionCreators(QuestionsActions, dispatch)
+        questionsActions: bindActionCreators(QuestionsActions, dispatch),
+        editQuestionIDActions: bindActionCreators(EditQuestionIDActions, dispatch)
     };
 }
 

@@ -23,6 +23,14 @@ import Question from '../Question/index';
 
 class Radio extends PureComponent {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            selected: false
+        };
+        this._onChangeHandle = this._onChangeHandle.bind(this);
+    }
+
     componentDidMount() {
         $(this.refs.root).localize();
     }
@@ -32,9 +40,9 @@ class Radio extends PureComponent {
     }
 
     render() {
-        const { id, item, className } = this.props;
+        const { id, item } = this.props;
         return (
-            <div ref="root" className={className}>
+            <div ref="root" className="question">
                 <Question
                     id={id}
                     text={item.label}
@@ -48,11 +56,12 @@ class Radio extends PureComponent {
     }
 
     _renderRadioItem() {
-        const { id, item, onChangeHandle } = this.props;
+        const { id, item } = this.props;
         const items = item.data.map((itm, idx) => {
             const inputID = `radio_${id}_${idx}`;
             const val = itm.value ? itm.value : itm.label;
             const label = itm.label;
+            const input = itm.input;
             return (
                 <div
                     className={styles.radioItem}
@@ -63,24 +72,35 @@ class Radio extends PureComponent {
                         type="radio"
                         name={id}
                         value={val}
-                        onChange={onChangeHandle}
+                        checked={this.state.selected === inputID}
+                        onChange={this._onChangeHandle}
                     />
                     <label htmlFor={inputID}>
                         {label}
                     </label>
+                    {
+                        input && this.state.selected === inputID ?
+                            <input type="text" placeholder={input} /> :
+                            ''
+                    }
                 </div>
             );
         });
         return items;
     }
 
+    _onChangeHandle(e) {
+        this.setState({
+            selected: e.target.id
+        });
+        // TODO onChangeHandle
+    }
 }
 
 Radio.PropTypes = {
     id: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
-    onChangeHandle: PropTypes.func.isRequired,
-    className: PropTypes.string
+    onChangeHandle: PropTypes.func.isRequired
 };
 
 Radio.defaultProps = {};

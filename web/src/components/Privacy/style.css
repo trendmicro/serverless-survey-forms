@@ -1,0 +1,27 @@
+.question {
+    font-size: 16px;
+    display: inline-block;
+    margin: 15px 20px 10px 0;
+}
+
+.terms {
+    margin: 20px;
+    width: 80%;
+}
+
+.terms input[type="checkbox"] {
+    float: left;
+    margin-right: 10px;
+}
+
+.terms .desc {
+    float: left;
+    margin-bottom: 10px;
+}
+
+.terms input[type="text"] {
+    padding: 0 10px;
+    margin-left: 20px;
+    width: 90%;
+    padding: 5px 8px;
+}

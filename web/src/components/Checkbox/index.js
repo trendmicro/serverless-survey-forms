@@ -23,6 +23,16 @@ import Question from '../Question/index';
 
 class Checkbox extends PureComponent {
 
+    constructor(props) {
+        super(props);
+        const state = {};
+        props.item.data.forEach((itm, idx) => {
+            const inputID = `checkbox_${props.id}_${idx}`;
+            state[inputID] = false;
+        });
+        this.state = state;
+        this._onChangeHandle = this._onChangeHandle.bind(this);
+    }
     componentDidMount() {
         $(this.refs.root).localize();
     }
@@ -32,9 +42,9 @@ class Checkbox extends PureComponent {
     }
 
     render() {
-        const { id, item, className } = this.props;
+        const { id, item } = this.props;
         return (
-            <div ref="root" className={className}>
+            <div ref="root" className="question">
                 <Question
                     id={id}
                     text={item.label}
@@ -48,11 +58,12 @@ class Checkbox extends PureComponent {
     }
 
     _renderCheckboxItem() {
-        const { id, item, onChangeHandle } = this.props;
+        const { id, item } = this.props;
         const items = item.data.map((itm, idx) => {
             const inputID = `checkbox_${id}_${idx}`;
             const val = itm.value ? itm.value : itm.label;
             const label = itm.label;
+            const input = itm.input;
             return (
                 <div
                     className={styles.checkboxItem}
@@ -63,15 +74,28 @@ class Checkbox extends PureComponent {
                         type="checkbox"
                         name={id}
                         value={val}
-                        onChange={onChangeHandle}
+                        checked={this.state[inputID]}
+                        onChange={this._onChangeHandle}
                     />
                     <label htmlFor={inputID}>
                         {label}
                     </label>
+                    {
+                        input && this.state[inputID] ?
+                            <input type="text" placeholder={input} /> :
+                            ''
+                    }
                 </div>
             );
         });
         return items;
+    }
+
+    _onChangeHandle(e) {
+        const state = {};
+        state[e.target.id] = !this.state[e.target.id];
+        this.setState(state);
+        // TODO onChangeHandle
     }
 
 }
@@ -79,8 +103,7 @@ class Checkbox extends PureComponent {
 Checkbox.PropTypes = {
     id: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
-    onChangeHandle: PropTypes.func.isRequired,
-    className: PropTypes.string
+    onChangeHandle: PropTypes.func.isRequired
 };
 
 Checkbox.defaultProps = {};

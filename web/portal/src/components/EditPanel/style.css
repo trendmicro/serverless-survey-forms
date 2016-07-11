@@ -1,0 +1,19 @@
+/*
+ * Style for components/EditPanel/index.js
+ */
+.editpanel {
+    position: absolute;
+    top: 100px;
+    right: 0;
+    z-index: 3;
+    width: 400px;
+    height: 300px;
+    background-color: #FFF;
+    border: 1px solid #999;
+    border-radius: 8px;
+    padding: 10px;
+
+    select {
+        width: 100px;
+    }
+}

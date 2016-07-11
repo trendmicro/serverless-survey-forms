@@ -19,3 +19,6 @@ export const RECIEVE_ACCOUNT_FAILURE = 'RECIEVE_ACCOUNT_FAILURE';
 // questions
 export const ADD_QUESTION = 'ADD_QUESTION';
 
+// edit question ID
+export const SET_EDITQUESTIONID = 'SET_EDITQUESTIONID';
+

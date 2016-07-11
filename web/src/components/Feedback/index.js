@@ -1,16 +1,22 @@
-
-// CSS
+/**
+ * @module Feedback
+ * Feedback form component
+ * Will handle form components render according to data
+ *
+ **/
 import styles from './style.css';
 
 import React from 'react';
 import PureComponent from 'react-pure-render/component';
 import $ from 'jquery';
 
-import Checkbox from '../Checkbox/index';
-import Radio from '../Radio/index';
-import Select from '../Select/index';
-import Text from '../Text/index';
-import Textarea from '../Textarea/index';
+import Checkbox from '../Checkbox';
+import Radio from '../Radio';
+import Select from '../Select';
+import Text from '../Text';
+import Textarea from '../Textarea';
+import Privacy from '../Privacy';
+import Pagination from '../Pagination';
 
 class Feedback extends PureComponent {
 
@@ -23,19 +29,33 @@ class Feedback extends PureComponent {
     }
 
     render() {
-        const survey = this.props.survey;
-        const title = survey.data.title;
-        const descript = survey.data.descript;
-        const list = survey.data.survey.map(
+        const { paging, surveyActions } = this.props;
+        const { content } = this.props.survey.data;
+
+        const currentPageContent = content[paging - 1];
+        const { description, question } = currentPageContent;
+        const list = question.map(
             (itm, idx) => this._renderQuestion(itm, idx));
 
         return (
             <div ref="root" className={styles.wrap}>
                 <div className={styles.container}>
-                    <div className={styles.title} data-i18n={title}></div>
-                    <div className={styles.description} data-i18n={descript}></div>
-
+                    <div className={styles.title} data-i18n={this.props.survey.data.title}></div>
+                    {
+                        description ?
+                            <div className={styles.description}>{description}</div> :
+                            ''
+                    }
                     <div>{list}</div>
+                    {
+                        content.length > 1 ?
+                            <Pagination
+                                pages={content.length}
+                                currentPage={paging}
+                                surveyActions={surveyActions}
+                            /> :
+                            ''
+                    }
                 </div>
             </div>
         );
@@ -43,11 +63,10 @@ class Feedback extends PureComponent {
 
     _renderQuestion(item, idx) {
         const requiredProps = {
-            id: idx + 1,
+            id: item.order,
             key: idx,
             item: item,
-            onChangeHandle: this._onChangeHandle,
-            className: styles.question
+            onChangeHandle: this._onChangeHandle
         };
         switch (item.type) {
         case 'radio':
@@ -60,6 +79,8 @@ class Feedback extends PureComponent {
             return (<Textarea {...requiredProps} />);
         case 'select':
             return (<Select {...requiredProps} />);
+        case 'privacy':
+            return (<Privacy {...requiredProps} />);
         default:
             return (<div key={idx + 1}>Can't find the survey component: {item.type}</div>);
         }

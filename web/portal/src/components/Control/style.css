@@ -4,11 +4,17 @@
 .control {
     position: absolute;
     top: 0;
-    right: 150px;
+    right: 0;
+    z-index: 2;
 
     button {
         display: block;
         width: 150px;
         margin: 10px 0;
     }
+}
+
+:global .question {
+    background-color: #ddd;
+    margin: 10px auto;
 }

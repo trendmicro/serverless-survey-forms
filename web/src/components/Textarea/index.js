@@ -26,10 +26,10 @@ class Textarea extends PureComponent {
     }
 
     render() {
-        const { id, item, onChangeHandle, className } = this.props;
+        const { id, item, onChangeHandle } = this.props;
         const rows = item.rows ? item.rows : 3;
         return (
-            <div ref="root" className={className}>
+            <div ref="root" className="question">
                 <Question
                     id={id}
                     text={item.label}
@@ -52,8 +52,7 @@ class Textarea extends PureComponent {
 Textarea.PropTypes = {
     id: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
-    onChangeHandle: PropTypes.func.isRequired,
-    className: PropTypes.string
+    onChangeHandle: PropTypes.func.isRequired
 };
 
 Textarea.defaultProps = {};

@@ -1,0 +1,53 @@
+.paging {
+	list-style: none;
+	margin: 20px 0;
+	padding: 0;
+	overflow: hidden;
+    position: absolute;
+    left: 40%;
+    bottom: 0;
+}
+
+.pagingItem {
+	color: #fff;
+	background: #aaa;
+	border-radius: 100%;
+	padding: 1px 8px;
+	margin-right: 10px;
+	float: left;
+	cursor: pointer;
+}
+
+.pagingItemActive {
+	color: #fff;
+	background: #0086b3;
+	border-radius: 100%;
+	padding: 1px 8px;
+	margin-right: 10px;
+	float: left;
+	cursor: pointer;
+}
+
+.btn {
+    background: #aaa;
+    padding: 10px 15px;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    position: absolute;
+}
+.btn:hover {
+    background: #0086b3;
+}
+
+.prev {
+    composes: btn;
+    bottom: 10px;
+    left: 0;
+}
+
+.next {
+    composes: btn;
+    bottom: 10px;
+    right: 0;
+}

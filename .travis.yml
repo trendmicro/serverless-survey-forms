@@ -4,8 +4,16 @@ node_js:
 before_install:
 - npm install coveralls
 - npm install istanbul
-install: npm install
-script: npm run-script coveralls && cd web && npm install && npm test
+install:
+- npm install
+- cd web
+- npm install
+- cd ..
+script:
+- npm run-script coveralls
+- cd web
+- npm test
+- cd ..
 notifications:
   slack:
     secure: Y/ihM+N2RPQb2YAqxfqHDYjo3PPhxrIyzNm4sykGKGueV+gJghFE0JxHJe5vxhTc8wspYCPdf9y9I4SeW6URj6m71qwxIf+N3LBrxJPn488eJibmC9ZgELIMR92vS24z5L3qkzUwcm5oqhlBqpP4LnJaKuSt2SIASpLIb/b+n1ZzAUkO4EnCwZT9uhyzKJyTq6PcqZxHTtW2RWPv7t3qn7w3VY2iuwf/fyNjEaMnZMm9NzcgtfTftGyuVfv70kpGufJ1smkzIaT6rqUR8vEJUlpwpyItGd04Y6bjG2ziYugUs41owtmIIM22LuC+GXsSNx57RAJnVRsIwZ84zuxlWCHvdsiTNiHkfoMhihsCoh3pX+gSdH/t+VL5B0hYXIdBeBUMsOK79gkAUclnMgLPHEL48CvgDU9qyYrBi9TbGPGJk73Fzmja4shFEBXX1ao/QDd+f4Xa58uSK+qd3Tkl1/98DidTdMf7Eacg/5s1mi9TnRXhE9a1aKzFTXfPYK3Czb9ZO+vAdj8TSto1/eMQQtcox2Zh21lKNDY6Fxeukk4S59DqUwMviteUWQaqkahbdn6Elfez4YSWgjXXo3NHaR8kf9cUO+yfPYDkHO7fmYNKLnf73Thhk0cbd86y/PifEGQ4q/EInww14cx7juU+lIoCnXewP/QCeGDHGeQbGzY=

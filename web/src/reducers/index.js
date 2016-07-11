@@ -15,11 +15,13 @@ import { routerReducer } from 'react-router-redux';
 import loading from './loading';
 import settings from './settings';
 import survey from './survey';
+import paging from './paging';
 
 const rootReducer = combineReducers({
     loading,
     settings,
     survey,
+    paging,
     routing: routerReducer
 });
 

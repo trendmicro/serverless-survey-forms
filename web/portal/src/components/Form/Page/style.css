@@ -1,0 +1,9 @@
+
+.wrap {
+    position: relative;
+    width: 420px;
+    border: 1px solid #999;
+    margin: 10px auto;
+    padding: 5px 0;
+    border-radius: 8px;
+}

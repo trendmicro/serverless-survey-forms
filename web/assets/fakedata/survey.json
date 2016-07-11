@@ -1,80 +1,107 @@
 {
     "title": "title",
-    "descript": "description",
-    "survey": [
+    "description": "description",
+    "content": [
         {
             "page": 1,
-            "order": 1,
-            "type": "select",
-            "label": "I am select question",
-            "data": [
-                {"value": "1", "label": "option label 1"},
-                {"value": "2", "label": "option label 2"},
-                {"value": "3", "label": "option label 3"},
-                {"value": "4", "label": "option label 4"},
-                {"value": "5", "label": "option label 5"}
-            ],
-            "required": true
-        },
-        {
-            "page": 1,
-            "order": 2,
-            "type": "radio",
-            "label": "I am radio question text",
-            "data": [
-                {"value": "1", "label": "radio label 1"},
-                {"value": "2", "label": "radio label 2"},
-                {"value": "3", "label": "radio label 3"}
-            ],
-            "required": false
-        },
-        {
-            "page": 1,
-            "order": 3,
-            "type": "checkbox",
-            "label": "I am checkbox question text",
-            "data": [
-                {"value": "1", "label": "checkbox label 1"},
-                {"value": "2", "label": "checkbox label 2"},
-                {"value": "3", "label": "checkbox label 3"},
-                {"value": "4", "label": "checkbox label 4"},
-                {"value": "5", "label": "checkbox label 5"}
-            ],
-            "required": true
+            "description": "Page1 We are sorry for your leaving, share your opinion with us to make this service better.",
+            "question": [
+                {
+                    "id": "1AN2AL0F9BNA7R",
+                    "order": 1,
+                    "type": "select",
+                    "label": "I am select question",
+                    "data": [
+                        {"value": "1", "label": "option label 1"},
+                        {"value": "2", "label": "option label 2"},
+                        {"value": "3", "label": "option label 3"},
+                        {"value": "4", "label": "option label 4"},
+                        {"value": "5", "label": "option label 5"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "1AN2AL0F9BNA7A",
+                    "order": 2,
+                    "type": "radio",
+                    "label": "I am radio question text",
+                    "data": [
+                        {"value": "1", "label": "radio label 1"},
+                        {"value": "2", "label": "radio label 2"},
+                        {"value": "3", "label": "radio label 3 with input", "input": "Please input some text."}
+                    ],
+                    "required": false
+                },
+                {
+                    "id": "1AN2AL0F9BNACD",
+                    "order": 3,
+                    "type": "checkbox",
+                    "label": "I am checkbox question text",
+                    "data": [
+                        {"value": "1", "label": "checkbox label 1"},
+                        {"value": "2", "label": "checkbox label 2"},
+                        {"value": "3", "label": "checkbox label 3"},
+                        {"value": "4", "label": "checkbox label 4"},
+                        {"value": "5", "label": "checkbox label 5 with input", "input": "Please input some text."}
+                    ],
+                    "required": true
+                }
+            ]
         },
         {
             "page": 2,
-            "order": 1,
-            "type": "select",
-            "label": "Select everything",
-            "data": [
-                {"value": "1", "label": "option label 1"},
-                {"value": "2", "label": "option label 2"},
-                {"value": "3", "label": "option label 3"},
-                {"value": "4", "label": "option label 4"},
-                {"value": "5", "label": "option label 5"},
-                {"value": "6", "label": "option label 6"},
-                {"value": "7", "label": "option label 7"},
-                {"value": "8", "label": "option label 8"},
-                {"value": "9", "label": "option label 9"},
-                {"value": "10", "label": "option label 10"}
-            ],
-            "required": false
+            "description": "Page2 Tell us your opinion to make Trend Micor email scan better.",
+            "question": [
+                {
+                    "id": "1AN2AL0F9BNAQ3",
+                    "order": 4,
+                    "type": "select",
+                    "label": "Select everything",
+                    "data": [
+                        {"value": "1", "label": "option label 1"},
+                        {"value": "2", "label": "option label 2"},
+                        {"value": "3", "label": "option label 3"},
+                        {"value": "4", "label": "option label 4"},
+                        {"value": "5", "label": "option label 5"},
+                        {"value": "6", "label": "option label 6"},
+                        {"value": "7", "label": "option label 7"},
+                        {"value": "8", "label": "option label 8"},
+                        {"value": "9", "label": "option label 9"},
+                        {"value": "10", "label": "option label 10"}
+                    ],
+                    "required": false
+                },
+                {
+                    "id": "1AN2AL0F9BNAR1",
+                    "order": 5,
+                    "type": "text",
+                    "label": "I am single line text",
+                    "required": false
+                },
+                {
+                    "id": "1AN2AL0F9BNA99",
+                    "order": 6,
+                    "type": "textarea",
+                    "label": "I am multiple line text",
+                    "rows": 5,
+                    "required": false
+                }
+            ]
         },
         {
-            "page": 2,
-            "order": 2,
-            "type": "text",
-            "label": "I am single line text",
-            "required": false
-        },
-        {
-            "page": 2,
-            "order": 3,
-            "type": "textarea",
-            "label": "I am multiple line text",
-            "rows": 5,
-            "required": false
+            "page": 3,
+            "description": "Thanks for sharing your feedback with Trend Micro.",
+            "question": [
+                {
+                    "id": "1AN2AL0F9B2ACD",
+                    "order": 7,
+                    "type": "privacy",
+                    "label": "If Trend Micro has a follow-up survey on the Email Scan, would you like to participate?",
+                    "terms": "Yes, Trend Micro can reach me at this address: ",
+                    "input": "Please enter your email address.",
+                    "required": false
+                }
+            ]
         }
     ]
 }

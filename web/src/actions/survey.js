@@ -46,3 +46,10 @@ export function fetchSurvey(surveyid) {
         // .catch(err => dispatch(receiveSurveyFailure(err)));
     };
 }
+
+export function goToPage(index) {
+    return {
+        type: types.GO_TO_PAGE,
+        index
+    };
+}

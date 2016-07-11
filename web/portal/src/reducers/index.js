@@ -12,7 +12,8 @@
 		  "email": "jonas_cheng@trend.com.tw",
 		  "role": "User"
 		},
-    questions: [{},{},...]
+    questions: [{},{},...],
+    editQuestionID: ''
  }
 **/
 
@@ -22,12 +23,14 @@ import loading from './loading';
 import fbID from './fbID';
 import account from './account';
 import questions from './questions';
+import editQuestionID from './editQuestionID';
 
 const rootReducer = combineReducers({
     loading,
     fbID,
     account,
     questions,
+    editQuestionID,
     routing: routerReducer
 });
 
