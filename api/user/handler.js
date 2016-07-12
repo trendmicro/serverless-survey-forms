@@ -2,12 +2,11 @@
 
 let aws = require('../config/aws');
 let user = require('./user');
-
+user.initAWS(aws);
 
 module.exports.handler = function(event, context, callback) {
   // request from API Gateway
   console.log("Dispatch request from API Gateway: ", JSON.stringify(event));
-  user.initAWS(aws);
 
   switch(event.op) {
     case "listUsers":
