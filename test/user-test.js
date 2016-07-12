@@ -335,7 +335,7 @@ describe("Interface to get list users model from data store", () => {
       });
     });
   });
-  // TODO ask how to missingParams in #listUsers return 400 Bad request.
+
   describe("#listUsers with error", () => {
     let params =
     {

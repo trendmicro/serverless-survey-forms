@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = (() => {
-  let aws = null;
+   let docClient = null;
 
   const initAWS = (AWS) => {
-    aws = AWS;
+    docClient = new AWS.DynamoDB.DocumentClient();
   };
 
   const getUUID = () => {
@@ -49,7 +49,6 @@ module.exports = (() => {
     // validate parameters
     if (event.accountid && event.surveyid &&
       process.env.SERVERLESS_SURVEYTABLE) {
-      let docClient = new aws.DynamoDB.DocumentClient();
       let params = {
         TableName: process.env.SERVERLESS_SURVEYTABLE,
         Key: {
@@ -60,7 +59,7 @@ module.exports = (() => {
 
       docClient.get(params, function(err, data) {
         if (err) {
-          // console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
           return callback(getDynamoDBError(err), null);
         } else {
           if (data.Item) { // got response
@@ -74,7 +73,7 @@ module.exports = (() => {
             };
             return callback(null, response);
           } else {
-            // console.error("Unable to get an item with the request: ", JSON.stringify(params));
+            console.error("Unable to get an item with the request: ", JSON.stringify(params));
             return callback(new Error("404 Not Found: Unable to get an item with the request: " + JSON.stringify(params)), null);
           }
         }
@@ -108,7 +107,6 @@ module.exports = (() => {
     let response = null;
     // validate parameters
     if (event.accountid  && process.env.SERVERLESS_SURVEYTABLE) {
-      let docClient = new aws.DynamoDB.DocumentClient();
       let params = {
         TableName: process.env.SERVERLESS_SURVEYTABLE,
         ProjectionExpression: "accountid, #dt, subject, surveyid",
@@ -132,7 +130,7 @@ module.exports = (() => {
 
       docClient.query(params, function(err, data) {
         if (err) {
-          // console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
           return callback(getDynamoDBError(err), null);
         } else {
           // got response
@@ -171,7 +169,6 @@ module.exports = (() => {
     // validate parameters
     if (event.accountid && event.subject && event.survey &&
       process.env.SERVERLESS_SURVEYTABLE) {
-      let docClient = new aws.DynamoDB.DocumentClient();
       let surveyid = getUUID();
       let datetime = Date.now();
       let params = {
@@ -184,10 +181,9 @@ module.exports = (() => {
           survey: event.survey
         }
       };
-      // todo 404 Not Found: The account id {event.accountid} does not exist.
       docClient.put(params, function(err, data) {
         if (err) {
-          // console.error("Unable to add a new item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          console.error("Unable to add a new item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
           return callback(getDynamoDBError(err), null);
         } else {
           // compose response
@@ -225,7 +221,6 @@ module.exports = (() => {
     // validate parameters
     if (event.accountid  && event.surveyid && event.subject && event.survey &&
       process.env.SERVERLESS_SURVEYTABLE) {
-      let docClient = new aws.DynamoDB.DocumentClient();
       let datetime = Date.now();
       let params = {
         TableName: process.env.SERVERLESS_SURVEYTABLE,
@@ -248,10 +243,10 @@ module.exports = (() => {
       docClient.update(params, function(err, data) {
         if (err) {
           if(err.code === "ConditionalCheckFailedException"){
-            // console.error("Unable to update an item with the request: ", JSON.stringify(params));
+            console.error("Unable to update an item with the request: ", JSON.stringify(params));
             return callback(new Error("404 Not Found: Unable to update an not exist item with the request: " + JSON.stringify(params)), null);
           }else{
-            // console.error("Unable to update an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+            console.error("Unable to update an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
             return callback(getDynamoDBError(err), null);
           }
         } else {
@@ -283,7 +278,6 @@ module.exports = (() => {
     let response = {};
     // validate parameters
     if (event.accountid  && event.surveyid && process.env.SERVERLESS_SURVEYTABLE) {
-      let docClient = new aws.DynamoDB.DocumentClient();
       let params = {
         TableName: process.env.SERVERLESS_SURVEYTABLE,
         Key:{
@@ -293,7 +287,7 @@ module.exports = (() => {
       };
       docClient.delete(params, function(err, data) {
         if (err) {
-          // console.error("Unable to delete an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+          console.error("Unable to delete an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
           return callback(getDynamoDBError(err), null);
         } else {
           return callback(null, response); // Response will be an HTTP 200 with no content.

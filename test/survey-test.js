@@ -276,7 +276,6 @@ describe("Interface to get list survey model from data store", function() {
       it("should response successfully", function(done) {
         let event = {
           accountid: accountid,
-          authAccountid: "this is fake authAccountid",
           limitTesting: true,
         };
         const limitTestCase = (event) => {
@@ -310,13 +309,6 @@ describe("Interface to get list survey model from data store", function() {
 
     // missing parameter(s)
     let missingParams = [
-      {
-        desc: "with missing event.accountid",
-        event: {
-          authAccountid: "this is fake authAccountid"
-        },
-        expect: /Error: 400 Bad Request/
-      },
       // all parameters
       {
         desc: "with missing all parameters",
