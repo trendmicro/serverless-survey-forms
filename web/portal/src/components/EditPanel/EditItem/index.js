@@ -99,7 +99,6 @@ class EditItem extends PureComponent {
                         string="Delete"
                         i18nKey={false}
                         img="delete"
-                        color="black"
                         onClick={() => onDeleteHandle(id)}
                     />
                 </div>
@@ -110,7 +109,6 @@ class EditItem extends PureComponent {
                             string="Drag"
                             i18nKey={false}
                             img="move"
-                            color="black"
                             onClick={() => {}}
                         />
                     </div>

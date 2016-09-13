@@ -100,12 +100,10 @@ export function updateFeedback(closeWhenDone, privacyData) {
             if (closeWhenDone) {
                 window.parent.postMessage({
                     source: window.location.origin,
-                    msg: 'close'
+                    msg: 'close',
+                    page: getState().paging
                 }, '*');
             }
-            // TODO: postMessage to client
-            // window.parent.postMessage(`UPDATE Feedback from ${clientID}`,
-                // window.parent.location.origin);
         });
     };
 }
@@ -147,8 +145,14 @@ export function checkRequired(action, page) {
             }
         });
         dispatch(setPageDone(done));
-        if (done) {
+        if (done || action === 'prev') {
             switch (action) {
+            case 'prev':
+                if (page) {
+                    dispatch(surveyActions.goToPage(page));
+                    dispatch(setRequired(page));
+                }
+                break;
             case 'next':
                 if (!getState().settings.preview) {
                     if (getState().paging === 1) {
@@ -157,6 +161,12 @@ export function checkRequired(action, page) {
                         dispatch(updateFeedback());
                     }
                 }
+                // Send 'next' msg to client
+                window.parent.postMessage({
+                    source: window.location.origin,
+                    msg: 'next',
+                    page: getState().paging
+                }, '*');
                 if (page) {
                     dispatch(surveyActions.goToPage(page));
                     dispatch(setRequired(page));
@@ -170,6 +180,12 @@ export function checkRequired(action, page) {
                         dispatch(updateFeedback());
                     }
                 }
+                // Send 'done' msg to client
+                window.parent.postMessage({
+                    source: window.location.origin,
+                    msg: 'done',
+                    page: getState().paging
+                }, '*');
                 dispatch(surveyActions.surveyDone());
                 break;
             default:

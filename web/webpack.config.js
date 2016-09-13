@@ -25,7 +25,7 @@ if (folder === 'feedback') {
 var webpackConfig = {
     entry: path.resolve(__dirname, folder + '/src/entry.js'),
     output: {
-        filename: "index.js",
+        filename: `index.js?v=${Date.now()}`,
         path: path.resolve(__dirname, '../client/dist/' + folder)
     },
     module: {
@@ -90,7 +90,7 @@ if (process.env.NODE_ENV === 'production') {
     webpackConfig.plugins = [
         new webpack.NoErrorsPlugin(),
         new webpack.optimize.OccurenceOrderPlugin(),
-        new ExtractTextPlugin("styles.css", { allChunks: true }),
+        new ExtractTextPlugin(`styles.css?v=${Date.now()}`, { allChunks: true }),
         new webpack.optimize.DedupePlugin(),
         new webpack.optimize.UglifyJsPlugin({
             compress: {

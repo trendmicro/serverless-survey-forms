@@ -16,6 +16,7 @@
     clear: none;
     cursor: pointer;
     font-weight: normal;
+    margin-bottom: 8px;
 }
 
 :global .radioItem input[type="radio"]:disabled + label {
@@ -61,7 +62,8 @@
 }
 
 .radioItem input[type="text"] {
-	margin-left: 10px;
+	margin-left: 20px;
 	padding: 0 10px;
+    min-width: 250px;
 }
 

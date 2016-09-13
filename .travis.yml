@@ -4,6 +4,7 @@ node_js:
 before_install:
 - npm install coveralls
 - npm install istanbul
+- npm install -g npm@3
 install:
 - npm install
 - cd web
