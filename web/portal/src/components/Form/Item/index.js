@@ -108,7 +108,6 @@ class Item extends Component {
                                     string="Move"
                                     i18nKey={false}
                                     img="move"
-                                    color="black"
                                     onClick={() => {}}
                                     extraProps={{ style: { cursor: 'move' } }}
                                 />
@@ -118,14 +117,12 @@ class Item extends Component {
                             string="Copy"
                             i18nKey={false}
                             img="copy"
-                            color="black"
                             onClick={this._onCopyHandle}
                         />
                         <IconButton
                             string="Remove"
                             i18nKey={false}
                             img="delete"
-                            color="black"
                             onClick={this._onDeleteHandle}
                         />
                     </div>

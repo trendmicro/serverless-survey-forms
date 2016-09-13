@@ -57,6 +57,11 @@ export function fetchSurvey(accountid, surveyid) {
 }
 
 export function surveyDone() {
+    // Send 'done' msg to client
+    window.parent.postMessage({
+        source: window.location.origin,
+        msg: 'done'
+    }, '*');
     return {
         type: types.SURVEY_DONE
     };

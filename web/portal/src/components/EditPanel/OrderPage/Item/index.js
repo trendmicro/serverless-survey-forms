@@ -86,7 +86,6 @@ class Item extends PureComponent {
                             string="Move"
                             i18nKey={false}
                             img="move"
-                            color="black"
                             onClick={() => {}}
                             extraProps={{ style: { cursor: 'move' } }}
                         />

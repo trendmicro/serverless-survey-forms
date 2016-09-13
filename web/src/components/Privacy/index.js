@@ -9,6 +9,8 @@ import React, { PropTypes } from 'react';
 import PureComponent from 'react-pure-render/component';
 import classNames from 'classnames';
 import Button from '../Button';
+import I18Next from 'i18next';
+import Error from '../Error';
 
 class Privacy extends PureComponent {
 
@@ -20,7 +22,8 @@ class Privacy extends PureComponent {
         }
         this.state = {
             email,
-            terms: false
+            terms: false,
+            error: ''
         };
         this._onChange = this._onChange.bind(this);
         this._participate = this._participate.bind(this);
@@ -28,7 +31,7 @@ class Privacy extends PureComponent {
     }
 
     render() {
-        const { info } = this.props;
+        const { info, prefillData } = this.props;
         return (
             <div ref="root" className="question">
                 <div
@@ -61,7 +64,18 @@ class Privacy extends PureComponent {
                             placeholder={info.input}
                             value={this.state.email}
                             onChange={this._onChange}
+                            disabled={!this.state.terms}
                         />
+                        {
+                            prefillData.privacy_policy_url ?
+                                <p
+                                    className="ut-privacy-policy"
+                                    dangerouslySetInnerHTML={{ __html: I18Next.t('privacy_policy', {
+                                        url: prefillData.privacy_policy_url })
+                                    }}
+                                >
+                                </p> : ''
+                        }
                         <Button
                             string={'participate'}
                             onClick={this._participate}
@@ -70,6 +84,10 @@ class Privacy extends PureComponent {
                                 [`${styles.btn}`]: true
                             }}
                         />
+                        {
+                            this.state.error ?
+                                <Error msg={I18Next.t(this.state.error)} /> : ''
+                        }
                     </div>
                 </div>
             </div>
@@ -85,19 +103,34 @@ class Privacy extends PureComponent {
     _participate() {
         const emailFormat = /^(?=.{5,200}$)([\w\-]+)([\w\.\-]*)@([\w\-]+)\.([\w\-]*)\w+([-.]\w+)*$/;
         if (!this.state.terms) {
-            console.log('Please agree to terms');
-        } else if (!this.state.email || !emailFormat.test(this.state.email)) {
-            console.log('Please input correct email');
+            this.setState({
+                error: 'error_agree_terms'
+            });
+        } else if (!this.state.email) {
+            this.setState({
+                error: 'error_email_required'
+            });
+        } else if (!emailFormat.test(this.state.email)) {
+            this.setState({
+                error: 'error_email_incorrect'
+            });
         } else {
+            this.setState({
+                error: ''
+            });
             const privacyData = {
                 privacy: {
                     input: this.state.email
                 }
             };
-            // this.props.onChangeHandle(updatedfeedback);
             if (!this.props.settings.preview) {
                 this.props.feedbackActions.updateFeedback(true, privacyData);
             }
+            // Send 'participate' msg to client
+            window.parent.postMessage({
+                source: window.location.origin,
+                msg: 'participate'
+            }, '*');
         }
     }
 

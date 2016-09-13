@@ -103,9 +103,6 @@ export function updateFeedback(closeWhenDone, privacyData) {
                     msg: 'close'
                 }, '*');
             }
-            // TODO: postMessage to client
-            // window.parent.postMessage(`UPDATE Feedback from ${clientID}`,
-                // window.parent.location.origin);
         });
     };
 }
@@ -147,8 +144,14 @@ export function checkRequired(action, page) {
             }
         });
         dispatch(setPageDone(done));
-        if (done) {
+        if (done || action === 'prev') {
             switch (action) {
+            case 'prev':
+                if (page) {
+                    dispatch(surveyActions.goToPage(page));
+                    dispatch(setRequired(page));
+                }
+                break;
             case 'next':
                 if (!getState().settings.preview) {
                     if (getState().paging === 1) {
@@ -157,6 +160,11 @@ export function checkRequired(action, page) {
                         dispatch(updateFeedback());
                     }
                 }
+                // Send 'next' msg to client
+                window.parent.postMessage({
+                    source: window.location.origin,
+                    msg: 'next'
+                }, '*');
                 if (page) {
                     dispatch(surveyActions.goToPage(page));
                     dispatch(setRequired(page));

@@ -22,6 +22,7 @@
     clear: none;
     cursor: pointer;
     font-weight: normal;
+    margin-bottom: 8px;
 }
 
 :global .checkboxItem input[type="checkbox"]:disabled + label {
@@ -67,11 +68,12 @@
 }
 
 :global .checkboxItem input[type="text"] {
-	margin-left: 10px;
+	margin-left: 20px;
 	padding: 0 10px;
     color: #aaa;
     font-size: 15px;
     background-color: #fff;
     border: 1px solid #bbb;
     padding: 4px 13px;
+    min-width: 250px;
 }

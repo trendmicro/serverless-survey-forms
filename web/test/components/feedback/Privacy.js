@@ -9,15 +9,22 @@ DomMock('<html><body></body></html>');
 
 describe('Testing Privacy Component', () => {
     jsdom({ skipWindowCheck: true });
+    const info = {
+        label: 'If Trend Micro has a follow-up survey on the Email Scan, would you like to participate?',
+        terms: 'Yes, Trend Micro can reach me at this address: ',
+        input: 'Please enter your email address.'
+    };
+    const prefillData = {
+        email: 'test@test.com',
+        privacy_policy_url: 'https://test/privacy/'
+    };
 
     it('should contain correct content', () => {
-        const info = {
-            label: 'If Trend Micro has a follow-up survey on the Email Scan, would you like to participate?',
-            terms: 'Yes, Trend Micro can reach me at this address: ',
-            input: 'Please enter your email address.'
-        };
         const content = TestUtils.renderIntoDocument(
-            <Privacy info={info} />
+            <Privacy
+                info={info}
+                prefillData={prefillData}
+            />
         );
         const label = TestUtils.findRenderedDOMComponentWithClass(content, 'ut-label');
         const terms = TestUtils.findRenderedDOMComponentWithClass(content, 'ut-terms');
@@ -27,16 +34,39 @@ describe('Testing Privacy Component', () => {
     });
 
     it('should contain two inputs', () => {
-        const info = {
-            label: 'If Trend Micro has a follow-up survey on the Email Scan, would you like to participate?',
-            terms: 'Yes, Trend Micro can reach me at this address: ',
-            input: 'Please enter your email address.'
-        };
         const content = TestUtils.renderIntoDocument(
-            <Privacy info={info} />
+            <Privacy
+                info={info}
+                prefillData={prefillData}
+            />
         );
 
         const inputs = TestUtils.scryRenderedDOMComponentsWithTag(content, 'input');
         expect(inputs.length).toEqual(2);
+    });
+
+    it('should contain privacy policy url', () => {
+        const content = TestUtils.renderIntoDocument(
+            <Privacy
+                info={info}
+                prefillData={prefillData}
+            />
+        );
+        const url = TestUtils.findRenderedDOMComponentWithClass(content, 'ut-privacy-policy');
+        const isExist = TestUtils.isDOMComponent(url);
+        expect(isExist).toEqual(true);
+    });
+
+    it('should not contain privacy policy url', () => {
+        const content = TestUtils.renderIntoDocument(
+            <Privacy
+                info={info}
+                prefillData={{
+                    email: 'test@test.com'
+                }}
+            />
+        );
+        const url = TestUtils.scryRenderedDOMComponentsWithClass(content, 'ut-privacy-policy');
+        expect(url).toEqual([]);
     });
 });
