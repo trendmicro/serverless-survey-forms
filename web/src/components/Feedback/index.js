@@ -148,7 +148,7 @@ class Feedback extends PureComponent {
     }
 
     _renderThankyou() {
-        const { settings, prefillData, submit, feedbackActions } = this.props;
+        const { settings, prefillData, submit, feedbackActions, paging } = this.props;
         const { subject } = this.props.survey;
         const { description, privacy } = this.props.survey.thankyou;
         return (
@@ -184,6 +184,7 @@ class Feedback extends PureComponent {
                                         info={privacy}
                                         settings={settings}
                                         prefillData={prefillData}
+                                        paging={paging}
                                         submit={submit}
                                         onChangeHandle={this._onChangeHandle}
                                         feedbackActions={feedbackActions}
@@ -205,7 +206,8 @@ class Feedback extends PureComponent {
     _onClose() {
         window.parent.postMessage({
             source: window.location.origin,
-            msg: 'close'
+            msg: 'close',
+            page: this.props.done ? this.props.paging + 1 : this.props.paging
         }, '*');
     }
 }

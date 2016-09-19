@@ -23,7 +23,13 @@ if (folder === 'feedback') {
 }
 
 var webpackConfig = {
-    entry: path.resolve(__dirname, folder + '/src/entry.js'),
+    entry: [
+        "html5shiv",
+        "es5-shim/es5-shim",
+        "es5-shim/es5-sham",
+        "babel-polyfill",
+        path.resolve(__dirname, folder + '/src/entry.js')
+    ],
     output: {
         filename: `index.js?v=${Date.now()}`,
         path: path.resolve(__dirname, '../client/dist/' + folder)
@@ -62,7 +68,8 @@ var webpackConfig = {
             { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=65000&mimetype=application/font-woff" },
             { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=65000&mimetype=application/octet-stream]" },
             { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=65000&mimetype=application/vnd.ms-fontobject" },
-            { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=65000&mimetype=image/svg+xml" }
+            { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=65000&mimetype=image/svg+xml" },
+            { test: require.resolve("react"), loader: "imports?shim=es5-shim/es5-shim&sham=es5-shim/es5-sham" }
         ]
     },
     resolve: {

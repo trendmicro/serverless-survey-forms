@@ -52,7 +52,7 @@ class Rating extends PureComponent {
                         {this._renderRatingItem()}
                     </ul>
                     {
-                        item.input ?
+                        item.input && this.state.selected ?
                             <input
                                 type="text"
                                 placeholder={item.input}
