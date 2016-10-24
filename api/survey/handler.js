@@ -71,7 +71,8 @@ module.exports.handler = (event, context, callback) => {
         survey.addOneSurvey({
           accountid: event.accountid,
           subject: event.subject,
-          survey: event.survey
+          survey: event.survey,
+          l10n: event.l10n
         }, callback);
       }).catch((err) => {
         callback(err, null);
@@ -86,6 +87,7 @@ module.exports.handler = (event, context, callback) => {
           accountid: event.accountid,
           subject: event.subject,
           survey: event.survey,
+          l10n: event.l10n,
           surveyid: event.surveyid
         }, callback);
       }).catch((err) => {

@@ -64,6 +64,7 @@
         "authAccountid": "$context.authorizer.principalId",
         "subject": "$input.json('$.subject')",
         "survey": "$input.json('$.survey')",
+        "l10n": "$input.json('$.l10n')",
         "op": "addOneSurvey"
       }
     },
@@ -83,6 +84,7 @@
         "surveyid": "$input.params('surveyid')",
         "subject": "$input.json('$.subject')",
         "survey": "$input.json('$.survey')",
+        "l10n": "$input.json('$.l10n')",
         "authAccountid": "$context.authorizer.principalId",
         "op": "updateOneSurvey"
       }

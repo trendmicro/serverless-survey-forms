@@ -42,6 +42,7 @@ module.exports = ((aws) => {
    * subject    The subject of the survey
    * datetime   The latest modified date time of the survey
    * survey     The details of the survey model in JSON format
+   * l10n       The details of the survey l10n mapping table in JSON format
    */
   const getOneSurvey = (event, callback) =>{
     let response = null;
@@ -69,7 +70,8 @@ module.exports = ((aws) => {
               surveyid: data.Item.surveyid,
               subject: data.Item.subject,
               datetime: data.Item.datetime,
-              survey: data.Item.survey
+              survey: data.Item.survey,
+              l10n: data.Item.l10n
             };
             return callback(null, response);
           } else {
@@ -186,6 +188,7 @@ module.exports = ((aws) => {
    */
   const addOneSurvey = (event, callback) => {
     let response = null;
+
     // validate parameters
     if (event.accountid && event.subject && event.survey &&
       process.env.SERVERLESS_SURVEYTABLE) {
@@ -201,6 +204,9 @@ module.exports = ((aws) => {
           survey: event.survey
         }
       };
+      if (event.l10n) {
+        params.Item.l10n = event.l10n;
+      }
       docClient.put(params, function(err, data) {
         if (err) {
           console.error("Unable to add a new item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
@@ -239,7 +245,8 @@ module.exports = ((aws) => {
   const updateOneSurvey = (event, callback) => {
     let response = null;
     // validate parameters
-    if (event.accountid  && event.surveyid && event.subject && event.survey &&
+    if (event.accountid  && event.surveyid &&
+      (event.subject || event.survey || event.l10n) &&
       process.env.SERVERLESS_SURVEYTABLE) {
       let datetime = Date.now();
       let params = {
@@ -248,11 +255,9 @@ module.exports = ((aws) => {
           accountid: event.accountid,
           surveyid: event.surveyid
         },
-        UpdateExpression: "set subject = :subject, survey=:survey, #dt=:datetime",
+        UpdateExpression: "set #dt=:datetime",
         ExpressionAttributeValues:{
-          ":subject": event.subject,
-          ":survey": event.survey,
-          ":datetime": datetime,
+          ":datetime": datetime
         },
         ExpressionAttributeNames: {
           "#dt": "datetime",
@@ -260,26 +265,39 @@ module.exports = ((aws) => {
         "ConditionExpression": "(attribute_exists(surveyid)) AND (attribute_exists(accountid)) ",
         ReturnValues:"UPDATED_NEW"
       };
-      docClient.update(params, function(err, data) {
-        if (err) {
-          if(err.code === "ConditionalCheckFailedException"){
-            console.error("Unable to update an item with the request: ", JSON.stringify(params));
-            return callback(new Error("404 Not Found: Unable to update an not exist item with the request: " + JSON.stringify(params)), null);
-          }else{
-            console.error("Unable to update an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
-            return callback(getDynamoDBError(err), null);
+
+      let updateArray = [];
+      if (event.subject) updateArray.push("subject");
+      if (event.survey) updateArray.push("survey");
+      if (event.l10n) updateArray.push("l10n");
+
+      if (updateArray.length) {
+        params.UpdateExpression = params.UpdateExpression + "," + updateArray.map(column => {
+          params.ExpressionAttributeValues[":" + column] = event[column];
+          return column + "=:" + column;
+        }).join(",");
+
+        docClient.update(params, function(err, data) {
+          if (err) {
+            if(err.code === "ConditionalCheckFailedException"){
+              console.error("Unable to update an item with the request: ", JSON.stringify(params));
+              return callback(new Error("404 Not Found: Unable to update an not exist item with the request: " + JSON.stringify(params)), null);
+            }else{
+              console.error("Unable to update an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+              return callback(getDynamoDBError(err), null);
+            }
+          } else {
+            // compose response
+            response = {
+              datetime: data.Attributes.datetime,
+            };
+            return callback(null, response);
           }
-        } else {
-          // compose response
-          response = {
-            datetime: data.Attributes.datetime,
-          };
-          return callback(null, response);
-        }
-      });
-    }
-    // incomplete parameters
-    else {
+        });
+      } else {
+        return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
+      }
+    } else { // incomplete parameters
       return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
     }
   };
