@@ -2,63 +2,8 @@
 
 let expect = require('chai').expect;
 let should = require('chai').should();
-
-// require testing target and set up necessary information
-let aws = require('aws-sdk');
-let user = null;
-let dynadblib = require('./dynadb');
-let dynadb = new dynadblib();
-
-before('Initial local DynamoDB', function(done) {
-  // set up necessary information
-  process.env['SERVERLESS_USERTABLE'] = 'usertable';
-  let dynalitePort = 4567;
-  /////////////////////////////////////////////////////////////////////
-
-  // Returns a standard Node.js HTTP server
-  dynadb.listen(dynalitePort, function(err) {
-    if (err) throw err;
-
-    // create user table
-    aws.config.update({
-      accessKeyId: "accessKeyId",
-      secretAccessKey: "secretAccessKey",
-      region: 'us-east-1',
-      endpoint: 'http://localhost:' + dynalitePort
-    });
-
-    user = require('../api/user/user.js')(aws);
-
-    let dynamodb = new aws.DynamoDB({
-      apiVersion: '2012-08-10'
-    });
-
-    let params = {
-      TableName: process.env.SERVERLESS_USERTABLE,
-      AttributeDefinitions: [{
-        AttributeName: "accountid",
-        AttributeType: "S"
-      }],
-      KeySchema: [{
-        AttributeName: "accountid",
-        KeyType: "HASH"
-      }],
-      ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-      }
-    };
-    dynamodb.createTable(params, function(err, data) {
-      if (err) throw err;
-      done();
-    });
-  });
-  /////////////////////////////////////////////////////////////////////
-});
-
-after('Uninitial local DynamoDB', function(done) {
-  dynadb.close(done);
-});
+let init = require('./init-test'),
+    userjs = init.userjs;
 
 describe("Interface to add one new user model into data store", function() {
   describe("#addOneUser successfully", function() {
@@ -70,7 +15,7 @@ describe("Interface to add one new user model into data store", function() {
           email: "this is fake email",
           role: "this is fake User",
         };
-        user.addOneUser(event, function(error, response) {
+        userjs.addOneUser(event, function(error, response) {
           expect(error).to.be.null;
           expect(response).to.not.be.null;
           done();
@@ -199,7 +144,7 @@ describe("Interface to add one new user model into data store", function() {
     missingParams.forEach(function(test) {
       describe("When adding one new user model " + test.desc, function() {
         it("should response error", function(done) {
-          user.addOneUser(test.event, function(error, response) {
+          userjs.addOneUser(test.event, function(error, response) {
             expect(error).to.not.be.null;
             expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
@@ -224,7 +169,7 @@ describe("Interface to get one user model from data store", function() {
       email: email,
       role: role
     };
-    user.addOneUser(event, function(err, data) {
+    userjs.addOneUser(event, function(err, data) {
       if (err) throw err;
       done();
     });
@@ -236,7 +181,7 @@ describe("Interface to get one user model from data store", function() {
         accountid: accountid,
       };
       it("should response successfully", (done) => {
-        user.getOneUser(event, (error, response) => {
+        userjs.getOneUser(event, (error, response) => {
           expect(error).to.be.null;
           expect(response).to.not.be.null;
           response.should.have.all.keys(['accountid', 'username', 'role']);
@@ -269,7 +214,7 @@ describe("Interface to get one user model from data store", function() {
     missingParams.forEach(function(test) {
       describe("When getting one user model " + test.desc, function() {
         it("should response error", (done) => {
-          user.getOneUser(test.event, (error, response) => {
+          userjs.getOneUser(test.event, (error, response) => {
             expect(error).to.not.be.null;
             expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
@@ -286,7 +231,7 @@ describe("Interface to get list users model from data store", () => {
     describe("When getting exist users model with complete and normal parameters", () => {
       let event = {};
       it("should response successfully", (done) => {
-        user.listUsers(event, (error, response) => {
+        userjs.listUsers(event, (error, response) => {
           expect(error).to.be.null;
           expect(response).to.not.be.null;
           response.should.have.keys('users');
@@ -309,7 +254,7 @@ describe("Interface to get list users model from data store", () => {
       };
       it("should response successfully", (done) => {
         const limitTestCase = (event) => {
-          user.listUsers(event, (error, response) => {
+          userjs.listUsers(event, (error, response) => {
             if (typeof response.LastEvaluatedKey != "undefined") {
               expect(error).to.be.null;
               expect(response).to.not.be.null;
@@ -350,7 +295,7 @@ describe("Interface to get list users model from data store", () => {
 
     describe("When getting list users mode " + params.desc, () => {
       it("should response error", (done) => {
-        user.listUsers(params.event, (error, response) => {
+        userjs.listUsers(params.event, (error, response) => {
           expect(error).to.not.be.null;
           expect(response).to.be.null;
           error.should.match(RegExp(params.expect));
@@ -370,7 +315,7 @@ describe("Interface to calculate user count from data store", function() {
   describe("#countUser successfully", function() {
     describe("When getting exist user model with complete and normal parameters", function() {
       it("should response successfully", (done) => {
-        user.countUser({}, (error, response) => {
+        userjs.countUser({}, (error, response) => {
           expect(error).to.be.null;
           expect(response).to.not.be.null;
           response.should.have.all.keys(['Count', 'ScannedCount']);
@@ -393,7 +338,7 @@ describe("Interface to update one user model in data store", function() {
           email: "this is true email",
           role: "this is true User",
         };
-        user.updateOneUser(event, (error, response) => {
+        userjs.updateOneUser(event, (error, response) => {
           expect(error).to.be.null;
           expect(response).to.not.be.null;
         });
@@ -531,7 +476,7 @@ describe("Interface to update one user model in data store", function() {
     missingParams.forEach(function(test) {
       describe("When updating one user model " + test.desc, function() {
         it("should response error", function(done) {
-          user.updateOneUser(test.event, function(error, response) {
+          userjs.updateOneUser(test.event, function(error, response) {
             expect(error).to.not.be.null;
             expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
@@ -556,7 +501,7 @@ describe("Interface to delete one user model from data store", () => {
       email: email,
       role: role
     };
-    user.addOneUser(event, function(err, data) {
+    userjs.addOneUser(event, function(err, data) {
       if (err) throw err;
       done();
     });
@@ -570,13 +515,13 @@ describe("Interface to delete one user model from data store", () => {
           expect: /Error: 404 Not Found/
         };
         return new Promise((resolve, reject) => {
-          user.deleteOneUser(event, function (error, response) {
+          userjs.deleteOneUser(event, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.not.be.null;
             resolve(event);
           });
         }).then( (event) => {
-          return user.getOneUser(event, (error, response) => {
+          return userjs.getOneUser(event, (error, response) => {
             expect(error).to.not.be.null;
             expect(response).to.be.null;
             error.should.match(RegExp(event.expect));
@@ -589,7 +534,7 @@ describe("Interface to delete one user model from data store", () => {
         let event = {
           accountid: 'non-exist accountid',
         };
-        user.deleteOneUser(event, function(error, response) {
+        userjs.deleteOneUser(event, function(error, response) {
           expect(error).to.be.null;
           expect(response).to.not.be.null;
           done();
@@ -612,7 +557,7 @@ describe("Interface to delete one user model from data store", () => {
     missingParams.forEach(function(test) {
       describe("When deleting one user model " + test.desc, function() {
         it("should response error", (done) => {
-          user.getOneUser(test.event, (error, response) => {
+          userjs.getOneUser(test.event, (error, response) => {
             expect(error).to.not.be.null;
             expect(response).to.be.null;
             error.should.match(RegExp(test.expect));

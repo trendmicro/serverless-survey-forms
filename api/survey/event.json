@@ -4,5 +4,6 @@
   },
   "requester": "context.authorizer.principalId",
   "subject": "This is subject from event.json",
-  "survey": "This is survey model"
+  "survey": "This is survey model",
+  "l10n": "This is survey l10n mapping"
 }
