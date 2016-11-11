@@ -3,7 +3,6 @@
 let aws = require('../config/aws');
 let survey = require('./survey')(aws);
 let user = require('../user/user.js')(aws);
-let feedback = require('../feedback/feedback.js')(aws);
 
 module.exports.handler = (event, context, callback) => {
   // request from API Gateway
@@ -15,18 +14,16 @@ module.exports.handler = (event, context, callback) => {
       reject(new Error("400 Bad Request: " + JSON.stringify(event)));
     } else {
       user.getOneUser({
-        accountid: event.authAccountid
-      }, function(err, data) {
-        if (err) {
-          reject(err, null);
+        accountid: event.authAccountid,
+      }).then(data => {
+        // Authorized: Designer or Admin
+        if (data.role === "Admin" || data.role === "Designer" && event.accountid === event.authAccountid) {
+          resolve();
         } else {
-          // Authorized: Designer or Admin
-          if (data.role === "Admin" || data.role === "Designer" && event.accountid === event.authAccountid) {
-            resolve();
-          } else {
-            reject(new Error(`403 Unauthorized request: The role of the requester ${event.authAccountid} is ${data.role} or ${event.accountid} != ${event.authAccountid}`));
-          }
+          reject(new Error(`403 Unauthorized request: The role of the requester ${event.authAccountid} is ${data.role}`));
         }
+      }).catch(err => {
+        reject(err);
       });
     }
   });
@@ -35,63 +32,69 @@ module.exports.handler = (event, context, callback) => {
     case "getOneSurvey":
       // GET /api/v1/surveys/<accountid>/<surveyid>/
       // Authenticated: Not necessary
-      return survey.getOneSurvey({
+      survey.getOneSurvey({
         accountid: event.accountid,
         surveyid: event.surveyid
-      }, (err, response) => {
+      }).then(response => {
         // A callback handler to decide return is 304 or 200.
-        if (err) {
-          callback(err, response);
-        } else if (event.ifModifiedSince && response.datetime && new Date(response.datetime).toUTCString() === event.ifModifiedSince) {
+        if (event.ifModifiedSince && response.datetime && new Date(response.datetime).toUTCString() === event.ifModifiedSince) {
           return callback("304 Not Modified", null);
         } else {
-          response['datetime'] = new Date(response.datetime).toUTCString();
-          callback(null, response);
+          response.datetime = new Date(response.datetime).toUTCString();
+          return callback(null, response);
         }
+      }).catch(err => {
+        return callback(err, null);
       });
       break;
 
     case "listSurveys":
       // GET /api/v1/mgnt/surveys/[?startKey=<startKey>]
       // Authenticated: Yes
-      return authorizedJudge.then(() => {
-        survey.listSurveys({
+      authorizedJudge.then(() => {
+        return survey.listSurveys({
           accountid: event.accountid,
           startKey: event.startKey,
-        }, callback);
-      }).catch((err) => {
-        callback(err, null);
+        });
+      }).then(response => {
+        return callback(null, response);
+      }).catch(err => {
+        return callback(err, null);
       });
       break;
 
     case "addOneSurvey":
       // POST /api/v1/mgnt/surveys/
       // Authenticated: Yes
-      return authorizedJudge.then(() => {
-        survey.addOneSurvey({
+      authorizedJudge.then(() => {
+        return survey.addOneSurvey({
           accountid: event.accountid,
           subject: event.subject,
           survey: event.survey,
-          l10n: event.l10n
-        }, callback);
-      }).catch((err) => {
-        callback(err, null);
+          l10n: event.l10n,
+        });
+      }).then(response => {
+        return callback(null, response);
+      }).catch(err => {
+        return callback(err, null);
       });
       break;
 
     case "updateOneSurvey":
       // PUT /api/v1/mgnt/surveys/
       // Authenticated: Yes
-      return authorizedJudge.then(() => {
-        survey.updateOneSurvey({
+      authorizedJudge.then(() => {
+        return survey.updateOneSurvey({
           accountid: event.accountid,
           subject: event.subject,
           survey: event.survey,
           l10n: event.l10n,
-          surveyid: event.surveyid
-        }, callback);
-      }).catch((err) => {
-        callback(err, null);
+          surveyid: event.surveyid,
+        });
+      }).then(response => {
+        return callback(null, response);
+      }).catch(err => {
+        return callback(err, null);
       });
       break;
 

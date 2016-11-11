@@ -5,28 +5,26 @@ let should = require('chai').should();
 let init = require('./init-test'),
     userjs = init.userjs;
 
-describe("Interface to add one new user model into data store", function() {
-  describe("#addOneUser successfully", function() {
-    describe("When adding one new user model with complete and normal parameters", function() {
-      it("should response successfully", function(done) {
+describe("Interface to add one new user model into data store", () => {
+  describe("#addOneUser successfully", () => {
+    describe("When adding one new user model with complete and normal parameters", () => {
+      it("should response successfully", done => {
         let event = {
           accountid: "this is fake account",
           username: "this is fake user name",
           email: "this is fake email",
           role: "this is fake User",
         };
-        userjs.addOneUser(event, function(error, response) {
-          expect(error).to.be.null;
+        userjs.addOneUser(event).then(response => {
           expect(response).to.not.be.null;
           done();
         });
       });
     });
   });
-  describe("#addOneUser with error", function() {
-    // missing parameter(s)
+
+  describe("#addOneUser with error", () => {
     let missingParams = [
-      // one parameter
       {
         desc: "with missing event.email",
         event: {
@@ -35,7 +33,8 @@ describe("Interface to add one new user model into data store", function() {
           role: "this is fake User"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.username",
         event: {
           accountid: "this is fake account",
@@ -43,7 +42,8 @@ describe("Interface to add one new user model into data store", function() {
           role: "this is fake User"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.accountid",
         event: {
           username: "this is fake user name",
@@ -51,7 +51,8 @@ describe("Interface to add one new user model into data store", function() {
           role: "this is fake User"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.role",
         event: {
           accountid: "this is fake account",
@@ -60,7 +61,6 @@ describe("Interface to add one new user model into data store", function() {
         },
         expect: /Error: 400 Bad Request/
       },
-      // two parameters
       {
         desc: "with missing event.username and event.email",
         event: {
@@ -68,35 +68,40 @@ describe("Interface to add one new user model into data store", function() {
           role: "this is fake role"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.username and event.role",
         event: {
           accountid: "this is fake account",
           email: "this is fake email",
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.accountid and event.username",
         event: {
           email: "this is fake email",
           role: "this is fake role"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.accountid and event.email",
         event: {
           username: "this is fake user name",
           role: "this is fake role"
         },
         expect: /Error: 400 Bad Request/
-      },{
+      },
+      {
         desc: "with missing event.accountid and event.role",
         event: {
           username: "this is fake user name",
           email: "this is fake email"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.role and event.email",
         event: {
           accountid: "this is fake account",
@@ -104,7 +109,6 @@ describe("Interface to add one new user model into data store", function() {
         },
         expect: /Error: 400 Bad Request/
       },
-      // three parameters
       {
         desc: "with missing event.role, event.accountid and event.email",
         event: {
@@ -133,56 +137,70 @@ describe("Interface to add one new user model into data store", function() {
         },
         expect: /Error: 400 Bad Request/
       },
-      // all parameters
       {
         desc: "with missing all parameters",
         event: {},
         expect: /Error: 400 Bad Request/
+      },
+      {
+        desc: "with wrong table",
+        event: {
+          accountid: "this is fake account",
+          username: "this is fake user name",
+          email: "this is fake email",
+          role: "this is fake User",
+        },
+        expect: /Error: 400 Bad Request/
       }
     ];
 
-    missingParams.forEach(function(test) {
-      describe("When adding one new user model " + test.desc, function() {
-        it("should response error", function(done) {
-          userjs.addOneUser(test.event, function(error, response) {
+    missingParams.forEach(test => {
+      describe("When adding one new user model " + test.desc, () => {
+        it("should response error", done => {
+          if (test.desc === "with wrong table") process.env.SERVERLESS_USERTABLE = "XXX";
+          userjs.addOneUser(test.event).catch(error => {
             expect(error).to.not.be.null;
-            expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
             done();
           });
         });
       });
     });
+
+    after("Set SERVERLESS_USERTABLE usertable", done => {
+      process.env.SERVERLESS_USERTABLE = 'usertable';
+      done();
+    });
   });
 });
 
-describe("Interface to get one user model from data store", function() {
+describe("Interface to get one user model from data store", () => {
   let accountid = "this is dummy account",
     username = "this is dummy user name",
     email = "this is dummy email",
     role = "this is dummy User";
 
-  before("Insert one dummy record", function(done) {
+  before("Insert one dummy record", done => {
     let event = {
       accountid: accountid,
       username: username,
       email: email,
       role: role
     };
-    userjs.addOneUser(event, function(err, data) {
-      if (err) throw err;
+    userjs.addOneUser(event).then(() => {
       done();
+    }).catch(err => {
+      throw err;
     });
   });
 
-  describe("#getOneUser successfully", function() {
-    describe("When getting exist user model with complete and normal parameters", function() {
+  describe("#getOneUser successfully", () => {
+    describe("When getting exist user model with complete and normal parameters", () => {
       let event = {
         accountid: accountid,
       };
-      it("should response successfully", (done) => {
-        userjs.getOneUser(event, (error, response) => {
-          expect(error).to.be.null;
+      it("should response successfully", done => {
+        userjs.getOneUser(event).then(response => {
           expect(response).to.not.be.null;
           response.should.have.all.keys(['accountid', 'username', 'role']);
           response.accountid.should.have.string(accountid);
@@ -193,7 +211,8 @@ describe("Interface to get one user model from data store", function() {
       });
     });
   });
-  describe("#getOneUser with error", function() {
+
+  describe("#getOneUser with error", () => {
     let missingParams = [
       {
         desc: "with not match any event.accountid",
@@ -202,26 +221,36 @@ describe("Interface to get one user model from data store", function() {
         },
         expect: /Error: 404 Not Found/
       },
-      // missing parameter(s)
-      // one parameter
       {
         desc: "with missing event.accountid",
         event: {},
         expect: /Error: 400 Bad Request/
       },
+      {
+        desc: "with wrong table",
+        event: {
+          accountid: 'not match any event.accountid'
+        },
+        expect: /Error: 400 Bad Request/
+      }
     ];
 
-    missingParams.forEach(function(test) {
-      describe("When getting one user model " + test.desc, function() {
-        it("should response error", (done) => {
-          userjs.getOneUser(test.event, (error, response) => {
+    missingParams.forEach(test => {
+      describe("When getting one user model " + test.desc, () => {
+        it("should response error", done => {
+          if (test.desc === "with wrong table") process.env.SERVERLESS_USERTABLE = "XXX";
+          userjs.getOneUser(test.event).catch(error => {
             expect(error).to.not.be.null;
-            expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
             done();
           });
         });
       });
+    });
+
+    after("Set SERVERLESS_USERTABLE usertable", done => {
+      process.env.SERVERLESS_USERTABLE = 'usertable';
+      done();
     });
   });
 });
@@ -230,13 +259,12 @@ describe("Interface to get list users model from data store", () => {
   describe("#listUsers successfully", () => {
     describe("When getting exist users model with complete and normal parameters", () => {
       let event = {};
-      it("should response successfully", (done) => {
-        userjs.listUsers(event, (error, response) => {
-          expect(error).to.be.null;
+      it("should response successfully", done => {
+        userjs.listUsers(event).then(response => {
           expect(response).to.not.be.null;
           response.should.have.keys('users');
           response.users.length.should.equal(2); // There are two users data in above test case
-          response.users.map((obj) => {
+          response.users.map(obj => {
             obj.should.have.keys(['accountid', 'username', 'email', 'role']);
             obj.accountid.should.exist;
             obj.username.should.exist;
@@ -252,11 +280,10 @@ describe("Interface to get list users model from data store", () => {
       let event = {
         limitTesting: true,
       };
-      it("should response successfully", (done) => {
-        const limitTestCase = (event) => {
-          userjs.listUsers(event, (error, response) => {
+      it("should response successfully", done => {
+        const limitTestCase = event => {
+          userjs.listUsers(event).then(response => {
             if (typeof response.LastEvaluatedKey != "undefined") {
-              expect(error).to.be.null;
               expect(response).to.not.be.null;
               response.should.have.keys(['users', 'LastEvaluatedKey']);
               response.users.length.should.equal(1); // There is one user data because setting limit is 1.
@@ -281,42 +308,46 @@ describe("Interface to get list users model from data store", () => {
   });
 
   describe("#listUsers with error", () => {
-    let params =
-    {
-      desc: "with wrong setting",
+    let params = {
+      desc: "with wrong table",
       event: {},
-      expect: /Error: 400 Bad Request/
+      expect: /Error: 400 Bad Request/,
     };
 
-    before("For 400, set SERVERLESS_USERTABLE null", (done) => {
-      process.env['SERVERLESS_USERTABLE'] = null;
-      done();
-    });
-
-    describe("When getting list users mode " + params.desc, () => {
-      it("should response error", (done) => {
-        userjs.listUsers(params.event, (error, response) => {
+    describe("When getting user list " + params.desc + " (Table not exist)", () => {
+      it("should response error", done => {
+        process.env.SERVERLESS_USERTABLE = "XXX";
+        userjs.listUsers(params.event).catch(error => {
           expect(error).to.not.be.null;
-          expect(response).to.be.null;
           error.should.match(RegExp(params.expect));
           done();
         });
       });
     });
 
-    after("Set SERVERLESS_USERTABLE usertable", (done) => {
+    describe("When getting list users mode " + params.desc + " (False condition)", () => {
+      it("should response error", done => {
+        delete process.env.SERVERLESS_USERTABLE;
+        userjs.listUsers(params.event).catch(error => {
+          expect(error).to.not.be.null;
+          error.should.match(RegExp(params.expect));
+          done();
+        });
+      });
+    });
+
+    after("Set SERVERLESS_USERTABLE usertable", done => {
       process.env['SERVERLESS_USERTABLE'] = 'usertable';
       done();
     });
   });
 });
 
-describe("Interface to calculate user count from data store", function() {
-  describe("#countUser successfully", function() {
-    describe("When getting exist user model with complete and normal parameters", function() {
-      it("should response successfully", (done) => {
-        userjs.countUser({}, (error, response) => {
-          expect(error).to.be.null;
+describe("Interface to calculate user count from data store", () => {
+  describe("#countUser successfully", () => {
+    describe("When getting exist user model with complete and normal parameters", () => {
+      it("should response successfully", done => {
+        userjs.countUser({}).then(response => {
           expect(response).to.not.be.null;
           response.should.have.all.keys(['Count', 'ScannedCount']);
           expect(response.Count).to.equal(2);  // Data store have two record.
@@ -326,26 +357,55 @@ describe("Interface to calculate user count from data store", function() {
       });
     });
   });
+
+  describe("#countUser with error", () => {
+    describe("When getting exist user model with wrong table (Table not exist)", () => {
+      it("should response error", done => {
+        process.env.SERVERLESS_USERTABLE = "XXX"
+        userjs.countUser({}).catch(error => {
+          expect(error).to.not.be.null;
+          error.should.match(RegExp(/Error: 400 Bad Request/));
+          done();
+        });
+      });
+    });
+
+    describe("When getting exist user model with wrong table (False condition)", () => {
+      it("should response error", done => {
+        delete process.env.SERVERLESS_USERTABLE;
+        userjs.countUser({}).catch(error => {
+          expect(error).to.not.be.null;
+          error.should.match(RegExp(/Error: 400 Bad Request/));
+          done();
+        });
+      });
+    });
+
+    after("Set SERVERLESS_USERTABLE usertable", done => {
+      process.env.SERVERLESS_USERTABLE = "usertable";
+      done();
+    });
+  });
 });
 
-describe("Interface to update one user model in data store", function() {
-  describe("#updateOneUser successfully", function() {
-    describe("When updating one exist user model with complete and normal parameters", function() {
-      it("should response successfully", function() {
+describe("Interface to update one user model in data store", () => {
+  describe("#updateOneUser successfully", () => {
+    describe("When updating one exist user model with complete and normal parameters", () => {
+      it("should response successfully", () => {
         let event = {
           accountid: "this is fake account",
           username: "this is true user name",
           email: "this is true email",
           role: "this is true User",
         };
-        userjs.updateOneUser(event, (error, response) => {
-          expect(error).to.be.null;
+        userjs.updateOneUser(event).then(response => {
           expect(response).to.not.be.null;
         });
       });
     });
   });
-  describe("#updateOneUser with error", function() {
+
+  describe("#updateOneUser with error", () => {
     let missingParams = [
       {
         desc: "with not exist user model in data store",
@@ -357,8 +417,6 @@ describe("Interface to update one user model in data store", function() {
         },
         expect: /Error: 404 Not Found/
       },
-      // missing parameter(s)
-      // one parameter
       {
         desc: "with missing event.email",
         event: {
@@ -367,7 +425,8 @@ describe("Interface to update one user model in data store", function() {
           role: "this is fake User"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.username",
         event: {
           accountid: "this is fake account",
@@ -375,7 +434,8 @@ describe("Interface to update one user model in data store", function() {
           role: "this is fake User"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.accountid",
         event: {
           username: "this is fake user name",
@@ -383,7 +443,8 @@ describe("Interface to update one user model in data store", function() {
           role: "this is fake User"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.role",
         event: {
           accountid: "this is fake account",
@@ -392,7 +453,6 @@ describe("Interface to update one user model in data store", function() {
         },
         expect: /Error: 400 Bad Request/
       },
-      // two parameters
       {
         desc: "with missing event.username and event.email",
         event: {
@@ -400,35 +460,40 @@ describe("Interface to update one user model in data store", function() {
           role: "this is fake role"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.username and event.role",
         event: {
           accountid: "this is fake account",
           email: "this is fake email",
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.accountid and event.username",
         event: {
           email: "this is fake email",
           role: "this is fake role"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.accountid and event.email",
         event: {
           username: "this is fake user name",
           role: "this is fake role"
         },
         expect: /Error: 400 Bad Request/
-      },{
+      },
+      {
         desc: "with missing event.accountid and event.role",
         event: {
           username: "this is fake user name",
           email: "this is fake email"
         },
         expect: /Error: 400 Bad Request/
-      }, {
+      },
+      {
         desc: "with missing event.role and event.email",
         event: {
           accountid: "this is fake account",
@@ -436,7 +501,6 @@ describe("Interface to update one user model in data store", function() {
         },
         expect: /Error: 400 Bad Request/
       },
-      // three parameters
       {
         desc: "with missing event.role, event.accountid and event.email",
         event: {
@@ -465,7 +529,6 @@ describe("Interface to update one user model in data store", function() {
         },
         expect: /Error: 400 Bad Request/
       },
-      // all parameters
       {
         desc: "with missing all parameters",
         event: {},
@@ -473,12 +536,11 @@ describe("Interface to update one user model in data store", function() {
       }
     ];
 
-    missingParams.forEach(function(test) {
-      describe("When updating one user model " + test.desc, function() {
-        it("should response error", function(done) {
-          userjs.updateOneUser(test.event, function(error, response) {
+    missingParams.forEach(test => {
+      describe("When updating one user model " + test.desc, () => {
+        it("should response error", done => {
+          userjs.updateOneUser(test.event).catch(error => {
             expect(error).to.not.be.null;
-            expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
             done();
           });
@@ -494,48 +556,46 @@ describe("Interface to delete one user model from data store", () => {
     email = "this is dummy email",
     role = "this is dummy User";
 
-  before("Insert one dummy record", function(done) {
+  before("Insert one dummy record", done => {
     let event = {
       accountid: accountid,
       username: username,
       email: email,
       role: role
     };
-    userjs.addOneUser(event, function(err, data) {
-      if (err) throw err;
+    userjs.addOneUser(event).then(() => {
       done();
+    }).catch(err => {
+      throw err;
     });
   });
 
   describe("#deleteOneUser successfully", () => {
     describe("When deleting exist user model with complete and normal parameters", () => {
-      it("should response successfully", function() {
+      it("should response successfully", () => {
         let event = {
           accountid: accountid,
           expect: /Error: 404 Not Found/
         };
         return new Promise((resolve, reject) => {
-          userjs.deleteOneUser(event, function (error, response) {
-            expect(error).to.be.null;
+          userjs.deleteOneUser(event).then(response => {
             expect(response).to.not.be.null;
             resolve(event);
           });
-        }).then( (event) => {
-          return userjs.getOneUser(event, (error, response) => {
+        }).then(event => {
+          userjs.getOneUser(event).catch(error => {
             expect(error).to.not.be.null;
-            expect(response).to.be.null;
             error.should.match(RegExp(event.expect));
           });
         });
       });
     });
     describe("When deleting non-exist user model with complete and normal parameters", () => {
-      it("should response successfully", function(done) {
+      it("should response successfully", done => {
         let event = {
           accountid: 'non-exist accountid',
         };
-        userjs.deleteOneUser(event, function(error, response) {
-          expect(error).to.be.null;
+        userjs.deleteOneUser(event).then(response => {
           expect(response).to.not.be.null;
           done();
         });
@@ -545,21 +605,24 @@ describe("Interface to delete one user model from data store", () => {
 
   describe("#deleteOneUser with error", () => {
     let missingParams = [
-      // missing parameter(s)
-      // one parameter
       {
         desc: "with missing event.accountid",
         event: {},
         expect: /Error: 400 Bad Request/
       },
+      {
+        desc: "with wrong table",
+        event: {accountid: "this is fake account"},
+        expect: /Error: 400 Bad Request/
+      }
     ];
 
-    missingParams.forEach(function(test) {
-      describe("When deleting one user model " + test.desc, function() {
-        it("should response error", (done) => {
-          userjs.getOneUser(test.event, (error, response) => {
+    missingParams.forEach(test => {
+      describe("When deleting one user model " + test.desc, () => {
+        it("should response error", done => {
+          if (test.desc === "with wrong table") process.env.SERVERLESS_USERTABLE = "123";
+          userjs.deleteOneUser(test.event).catch(error => {
             expect(error).to.not.be.null;
-            expect(response).to.be.null;
             error.should.match(RegExp(test.expect));
             done();
           });
@@ -567,5 +630,9 @@ describe("Interface to delete one user model from data store", () => {
       });
     });
 
+    after("Set SERVERLESS_USERTABLE usertable", done => {
+      process.env.SERVERLESS_USERTABLE = 'usertable';
+      done();
+    });
   });
 });

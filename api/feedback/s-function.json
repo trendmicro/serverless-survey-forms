@@ -91,11 +91,11 @@
       "responses": "$${apiResponseNonCacheTemplate}"
     },
     {
-      "path": "api/v1/feedbacks/{surveyid}/{clientid}",
+      "path": "api/v1/mgnt/feedbacks/{surveyid}/{clientid}",
       "method": "DELETE",
       "type": "AWS",
-      "authorizationType": "none",
-      "authorizerFunction": false,
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
       "apiKeyRequired": false,
       "requestParameters": {},
       "requestTemplates": {
@@ -103,23 +103,25 @@
           "apigw": "$${apiRequestTemplate}",
           "surveyid": "$input.params('surveyid')",
           "clientid": "$input.params('clientid')",
+          "authAccountid": "$context.authorizer.principalId",
           "op" : "deleteFeedbacks"
         }
       },
       "responses": "$${apiResponseNonCacheTemplate}"
     },
     {
-      "path": "api/v1/feedbacks/{surveyid}",
+      "path": "api/v1/mgnt/feedbacks/{surveyid}",
       "method": "DELETE",
       "type": "AWS",
-      "authorizationType": "none",
-      "authorizerFunction": false,
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
       "apiKeyRequired": false,
       "requestParameters": {},
       "requestTemplates": {
         "application/json": {
           "apigw": "$${apiRequestTemplate}",
           "surveyid": "$input.params('surveyid')",
+          "authAccountid": "$context.authorizer.principalId",
           "op": "deleteFeedbacks"
         }
       },

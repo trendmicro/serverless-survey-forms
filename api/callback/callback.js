@@ -62,43 +62,30 @@ function callback(event, _callback) {
 
         // here can be checked if user exist in db and update properties or if not, create new etc.
         user.getOneUser({
-          accountid: id
-        }, function(err, data) {
-          if (err) {
-            if (err.message.match(/404 Not Found:/gi)) {
-              let parms = {
+          accountid: id,
+        }).then(() => {
+          // update properties if needed
+          utils.tokenResponse(tokenData, providerConfig, _callback);
+        }).catch(err => {
+          if (err.message.match(/404 Not Found:/gi)) {
+            user.countUser({}).then(response => {
+              return {
                 accountid: id,
                 username: profile.name,
                 email: profile.email,
-                role: "User"
+                role: response.Count === 0 ? "Admin" : "User", // First user set role to Admin
               };
-              user.countUser({},(err, response) => {
-                if (err) {
-                  utils.errorResponse({
-                    error: err
-                  }, providerConfig, _callback);
-                } else {
-                  parms['role'] = (response['Count'] === 0) ? "Admin" : "User"; // First user set role to Admin
-                  // create new
-                  user.addOneUser(parms, function(err, data) {
-                    if (err) {
-                      utils.errorResponse({
-                        error: err
-                      }, providerConfig, _callback);
-                    } else {
-                      utils.tokenResponse(tokenData, providerConfig, _callback);
-                    }
-                  })
-                }
-              });
-            } else {
+            }).then(user.addOneUser).then(() => {
+              utils.tokenResponse(tokenData, providerConfig, _callback);
+            }).catch(err => {
               utils.errorResponse({
-                error: err
+                error: err,
               }, providerConfig, _callback);
-            }
+            });
           } else {
-            // update properties if needed
-            utils.tokenResponse(tokenData, providerConfig, _callback);
+            utils.errorResponse({
+              error: err,
+            }, providerConfig, _callback);
           }
         });
       }
@@ -109,6 +96,7 @@ function callback(event, _callback) {
     case 'facebook':
       facebook.callback(event, providerConfig, handleResponse);
       break;
+
     default:
       utils.errorResponse({
         error: 'Invalid provider'
@@ -117,5 +105,5 @@ function callback(event, _callback) {
 }
 
 exports = module.exports = {
-  callback: callback
+  callback,
 };
