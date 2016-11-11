@@ -1,4 +1,5 @@
 'use strict';
+
 /**
  * Created by PHE on 2016/7/7.
  */
@@ -11,13 +12,12 @@ module.exports = ((aws) => {
   }
 
   // Convert DynamoDB error code into Error object
-  const getDynamoDBError = (err) => {
+  const getDynamoDBError = err => {
     if (err.statusCode === 400) {
       switch (err.code) {
         case "AccessDeniedException":
         case "UnrecognizedClientException":
           return new Error("401 Unauthorized: Unable to access an item with error: " + JSON.stringify(err));
-          break;
         default:
           return new Error("400 Bad Request: Unable to access an item with error: " + JSON.stringify(err));
       }
@@ -39,46 +39,43 @@ module.exports = ((aws) => {
    * feedback   The details of the feedback model in JSON format
    * datetime   The latest modified date time of the feedback.
    */
-
-  const getOneFeedback = (event, callback) => {
+  const getOneFeedback = event => {
     let response = null;
+    return new Promise((resolve, reject) => {
+      // validate parameters
+      if (event.surveyid && event.clientid && process.env.SERVERLESS_FEEDBACKTABLE) {
+        let params = {
+          TableName: process.env.SERVERLESS_FEEDBACKTABLE,
+          Key: {
+            surveyid: event.surveyid,
+            clientid: event.clientid,
+          },
+        };
 
-    // validate parameters
-    if (event.surveyid && event.clientid &&
-      process.env.SERVERLESS_FEEDBACKTABLE) {
-      let params = {
-        TableName: process.env.SERVERLESS_FEEDBACKTABLE,
-        Key: {
-          surveyid: event.surveyid,
-          clientid: event.clientid
-        }
-      };
-
-      docClient.get(params, function(err, data) {
-        if (err) {
-          console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
-          return callback(getDynamoDBError(err), null);
-        } else {
-          if (data.Item) { // got response
-            // compose response
-            response = {
-              surveyid: data.Item.surveyid,
-              clientid: data.Item.clientid,
-              feedback: data.Item.feedback,
-              datetime: data.Item.datetime
-            };
-            return callback(null, response);
+        docClient.get(params, (err, data) => {
+          if (err) {
+            console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+            reject(getDynamoDBError(err));
           } else {
-            console.error("Unable to get an item with the request: ", JSON.stringify(params));
-            return callback(new Error("404 Not Found: Unable to get an item with the request: " + JSON.stringify(params)), null);
+            if (data.Item) { // got response
+              // compose response
+              response = {
+                surveyid: data.Item.surveyid,
+                clientid: data.Item.clientid,
+                feedback: data.Item.feedback,
+                datetime: data.Item.datetime,
+              };
+              resolve(response);
+            } else {
+              console.error("Unable to get an item with the request: ", JSON.stringify(params));
+              reject(new Error("404 Not Found: Unable to get an item with the request: " + JSON.stringify(params)));
+            }
           }
-        }
-      });
-    }
-    // incomplete parameters
-    else {
-      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
-    }
+        });
+      } else { // incomplete parameters
+        reject(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)));
+      }
+    });
   };
 
   /**
@@ -124,18 +121,19 @@ module.exports = ((aws) => {
           params.Limit = 1;
         }
 
-        docClient.query(params, function(err, data) {
+        docClient.query(params, (err, data) => {
           if (err) {
             console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
             reject(getDynamoDBError(err));
           } else {
             // got and compose response
-            response = {};
-            response['feedbacks'] = data.Items;
+            response = {
+              feedbacks: data.Items,
+            };
 
             // LastEvaluatedKey
             if (typeof data.LastEvaluatedKey !== "undefined") {
-              response['LastEvaluatedKey'] = data.LastEvaluatedKey;
+              response.LastEvaluatedKey = data.LastEvaluatedKey;
             }
             resolve(response);
           }
@@ -156,33 +154,34 @@ module.exports = ((aws) => {
    * ScannedCount — the number of items that were queried or scanned, before any filter expression was applied to the results.
    * Count — the number of items that were returned in the response.
    */
-  const countFeedbacks = (event, callback) => {
+  const countFeedbacks = event => {
     let response = null;
-    // validate parameters
-    if (event.surveyid && process.env.SERVERLESS_FEEDBACKTABLE) {
-      let params = {
-        TableName: process.env.SERVERLESS_FEEDBACKTABLE,
-        KeyConditionExpression: "surveyid = :surveyid",
-        ExpressionAttributeValues: {
-          ":surveyid": event.surveyid,
-        },
-        Select: "COUNT",
-      };
+    return new Promise((resolve, reject) => {
+      // validate parameters
+      if (event.surveyid && process.env.SERVERLESS_FEEDBACKTABLE) {
+        let params = {
+          TableName: process.env.SERVERLESS_FEEDBACKTABLE,
+          KeyConditionExpression: "surveyid = :surveyid",
+          ExpressionAttributeValues: {
+            ":surveyid": event.surveyid,
+          },
+          Select: "COUNT",
+        };
 
-      docClient.query(params, function(err, data) {
-        if (err) {
-          console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
-          return callback(getDynamoDBError(err), null);
-        } else {
-          // got and compose response
-          response = data;
-          return callback(null, response);
-        }
-      });
-    }
-    else {
-      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
-    }
+        docClient.query(params, (err, data) => {
+          if (err) {
+            console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+            reject(getDynamoDBError(err));
+          } else {
+            // got and compose response
+            response = data;
+            resolve(response);
+          }
+        });
+      } else {
+        reject(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)));
+      }
+    });
   };
 
   /**
@@ -200,78 +199,69 @@ module.exports = ((aws) => {
    * datetime   The latest modified date time of the survey
    *
    */
-  const reportFeedbacks = (event, callback) => {
-    // validate parameters
-    if (event.accountid && event.surveyid && process.env.SERVERLESS_FEEDBACKTABLE) {
-      const survey = require('../survey/survey.js')();
-      let params = {
-        TableName: process.env.SERVERLESS_FEEDBACKTABLE,
-        ProjectionExpression: "surveyid, clientid, feedback, #dt",
-        KeyConditionExpression: "surveyid = :surveyid",
-        ExpressionAttributeNames: {
-          "#dt": "datetime",
-        },
-        ExpressionAttributeValues: {
-          ":surveyid": event.surveyid,
-        },
-      };
+  const reportFeedbacks = event => {
+    return new Promise((resolve, reject) => {
+      // validate parameters
+      if (event.accountid && event.surveyid && process.env.SERVERLESS_FEEDBACKTABLE) {
+        const survey = require('../survey/survey.js')(aws);
+        let params = {
+          TableName: process.env.SERVERLESS_FEEDBACKTABLE,
+          ProjectionExpression: "surveyid, clientid, feedback, #dt",
+          KeyConditionExpression: "surveyid = :surveyid",
+          ExpressionAttributeNames: {
+            "#dt": "datetime",
+          },
+          ExpressionAttributeValues: {
+            ":surveyid": event.surveyid,
+          },
+        };
 
-      if (event.unitTest) { // for unitTest setting
-        params.Limit = 1;
-      }
+        if (event.unitTest) { // for unitTest setting
+          params.Limit = 1;
+        }
 
-      const getSurveyFormat = new Promise( (resolve, reject) => {
-        survey.getOneSurvey({
-          accountid: event.accountid,
-          surveyid: event.surveyid
-        }, (err, response) => {
-          if (err) {
-            reject(err, null);
-          } else {
-            resolve(response);
-          }
-        });
-      });
-
-      const feedbackDataHandler = (responseData) => {
-        return new Promise(function(resolve, reject) {
-          docClient.query(params, function (err, data) {
-            if (err) {
-              console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
-              reject(getDynamoDBError(err), null);
-            } else {
-              // got and compose response
-              if (data.Items.length > 0) {  // For Last EvalutedKey final will return { Items: [], Count: 0, ScannedCount: 0 }
-                for (let item in data.Items) {
-                  if (data.Items.hasOwnProperty(item)) {
-                    responseData['data'].push(data.Items[item]);
+        const feedbackDataHandler = responseData => {
+          return new Promise((resolve, reject) => {
+            docClient.query(params, (err, data) => {
+              if (err) {
+                console.error("Unable to get an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+                reject(getDynamoDBError(err));
+              } else {
+                // got and compose response
+                if (data.Items.length > 0) {  // For Last EvalutedKey final will return { Items: [], Count: 0, ScannedCount: 0 }
+                  for (let item in data.Items) {
+                    if (data.Items.hasOwnProperty(item)) {
+                      responseData.data.push(data.Items[item]);
+                    }
                   }
                 }
+                // continue querying if we have more data : LastEvaluatedKey
+                if (typeof data.LastEvaluatedKey !== "undefined") {
+                  params.ExclusiveStartKey = data.LastEvaluatedKey;
+                  resolve(feedbackDataHandler(responseData));
+                } else {
+                  resolve(responseData);
+                }
               }
-              // continue querying if we have more data : LastEvaluatedKey
-              if (typeof data.LastEvaluatedKey != "undefined") {
-                params.ExclusiveStartKey = data.LastEvaluatedKey;
-                resolve(feedbackDataHandler(responseData));
-              } else {
-                resolve(responseData);
-              }
-            }
+            });
           });
-        });
-      };
+        };
 
-      getSurveyFormat.then((responseData) => {
-        responseData['data'] = [];
-        return feedbackDataHandler(responseData);
-      }).then( (response) => {
-        return callback(null, response);
-      }).catch( (err) => {
-        return callback(err, null);
-      });
-    }
-    else {
-      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
-    }
+        survey.getOneSurvey({
+          accountid: event.accountid,
+          surveyid: event.surveyid,
+        }).then(responseData => {
+          responseData.data = [];
+          return feedbackDataHandler(responseData);
+        }).then(response => {
+          resolve(response);
+        }).catch(err => {
+          reject(err);
+        });
+      } else {
+        reject(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)));
+      }
+    });
   };
 
   /**
@@ -285,38 +275,37 @@ module.exports = ((aws) => {
    * Key        Description
    * datetime   The latest modified date time of the feedback.
    */
-  const addOneFeedback = (event, callback) => {
+  const addOneFeedback = event => {
     let response = null;
-    // validate parameters
-    if (event.surveyid && event.clientid && event.feedback &&
-      process.env.SERVERLESS_FEEDBACKTABLE) {
-      let datetime = Date.now();
-      let params = {
-        TableName: process.env.SERVERLESS_FEEDBACKTABLE,
-        Item: {
-          surveyid: event.surveyid,
-          clientid: event.clientid,
-          datetime: datetime,
-          feedback: event.feedback
-        }
-      };
-      docClient.put(params, function(err, data) {
-        if (err) {
-          console.error("Unable to add a new item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
-          return callback(getDynamoDBError(err), null);
-        } else {
-          // compose response
-          response = {
-            datetime: datetime
-          };
-          return callback(null, response);
-        }
-      });
-    }
-    // incomplete parameters
-    else {
-      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
-    }
+    return new Promise((resolve, reject) => {
+      // validate parameters
+      if (event.surveyid && event.clientid && event.feedback && process.env.SERVERLESS_FEEDBACKTABLE) {
+        let datetime = Date.now();
+        let params = {
+          TableName: process.env.SERVERLESS_FEEDBACKTABLE,
+          Item: {
+            surveyid: event.surveyid,
+            clientid: event.clientid,
+            datetime: datetime,
+            feedback: event.feedback,
+          },
+        };
+        docClient.put(params, err => {
+          if (err) {
+            console.error("Unable to add a new item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+            reject(getDynamoDBError(err));
+          } else {
+            // compose response
+            response = {
+              datetime: datetime,
+            };
+            resolve(response);
+          }
+        });
+      } else { // incomplete parameters
+        reject(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)));
+      }
+    });
   };
 
   /**
@@ -330,51 +319,50 @@ module.exports = ((aws) => {
    * Key        Description
    * feedback   The details of the feedback model in JSON format
    */
-  const updateOneFeedback = (event, callback) => {
+  const updateOneFeedback = event => {
     let response = null;
-    // validate parameters
-    if (event.surveyid  && event.clientid && event.feedback &&
-      process.env.SERVERLESS_FEEDBACKTABLE) {
-      let datetime = Date.now();
-      let params = {
-        TableName: process.env.SERVERLESS_FEEDBACKTABLE,
-        Key:{
-          surveyid: event.surveyid,
-          clientid: event.clientid
-        },
-        UpdateExpression: "set feedback = :feedback, #dt=:datetime",
-        ExpressionAttributeValues:{
-          ":feedback": event.feedback,
-          ":datetime": datetime
-        },
-        ExpressionAttributeNames: {
-          "#dt": "datetime",
-        },
-        "ConditionExpression": "(attribute_exists(surveyid)) AND (attribute_exists(clientid)) ",
-        ReturnValues:"UPDATED_NEW"
-      };
-      docClient.update(params, function(err, data) {
-        if (err) {
-          if(err.code === "ConditionalCheckFailedException"){
-            console.error("Unable to update an item with the request: ", JSON.stringify(params));
-            return callback(new Error("404 Not Found: Unable to update an not exist item with the request: " + JSON.stringify(params)), null);
-          }else{
-            console.error("Unable to update an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
-            return callback(getDynamoDBError(err), null);
+    return new Promise((resolve, reject) => {
+      // validate parameters
+      if (event.surveyid  && event.clientid && event.feedback && process.env.SERVERLESS_FEEDBACKTABLE) {
+        let datetime = Date.now();
+        let params = {
+          TableName: process.env.SERVERLESS_FEEDBACKTABLE,
+          Key:{
+            surveyid: event.surveyid,
+            clientid: event.clientid,
+          },
+          UpdateExpression: "set feedback = :feedback, #dt=:datetime",
+          ExpressionAttributeValues:{
+            ":feedback": event.feedback,
+            ":datetime": datetime,
+          },
+          ExpressionAttributeNames: {
+            "#dt": "datetime",
+          },
+          "ConditionExpression": "(attribute_exists(surveyid)) AND (attribute_exists(clientid)) ",
+          ReturnValues:"UPDATED_NEW",
+        };
+        docClient.update(params, (err, data) => {
+          if (err) {
+            if (err.code === "ConditionalCheckFailedException") {
+              console.error("Unable to update an item with the request: ", JSON.stringify(params));
+              reject(new Error("404 Not Found: Unable to update an not exist item with the request: " + JSON.stringify(params)), null);
+            } else {
+              console.error("Unable to update an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
+              reject(getDynamoDBError(err));
+            }
+          } else {
+            // compose response
+            response = {
+              feedback: data.Attributes.feedback,
+            };
+            resolve(response);
           }
-        } else {
-          // compose response
-          response = {
-            feedback: data.Attributes.feedback,
-          };
-          return callback(null, response);
-        }
-      });
-    }
-    // incomplete parameters
-    else {
-      return callback(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)), null);
-    }
+        });
+      } else { // incomplete parameters
+        reject(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)));
+      }
+    });
   };
 
   /**
@@ -398,7 +386,7 @@ module.exports = ((aws) => {
             surveyid: event.surveyid,
           },
         };
-        docClient.delete(params, function(err, data) {
+        docClient.delete(params, err => {
           if (err) {
             console.error("Unable to delete an item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
             reject(getDynamoDBError(err));
@@ -423,9 +411,7 @@ module.exports = ((aws) => {
               }
             });
           });
-          if (otherParams) {
-            params = processBatchWrite(params, otherParams);
-          }
+          params = processBatchWrite(params, otherParams);
           if (Object.keys(params.RequestItems).length === 0) {
             // Dont need to access DDB without any request.
             resolve({}); // Response will be HTTP 200.
@@ -434,7 +420,7 @@ module.exports = ((aws) => {
         }).then(excuteBatchWrite).then(() => {
           resolve({}); // Response will be HTTP 200.
         }).catch(err => {
-          reject(err, null);
+          reject(err);
         });
       } else { // incomplete parameters
         reject(new Error("400 Bad Request: Missing parameters: " + JSON.stringify(event)));
@@ -452,7 +438,7 @@ module.exports = ((aws) => {
    * Response:
    * Valid parameter for batchWrite()
    */
-  const processBatchWrite = (param1, param2) => {
+  const processBatchWrite = (param1, param2 = {RequestItems: {}}) => {
     Object.keys(param2.RequestItems).forEach(key => {
       if (param1.RequestItems.hasOwnProperty(key) && Array.isArray(param1.RequestItems[key])) {
         param1.RequestItems[key] = param1.RequestItems[key].concat(param2.RequestItems[key]);
@@ -516,7 +502,7 @@ module.exports = ((aws) => {
 
     excuteArr = excuteArr.map(params => {
       return new Promise((resolve, reject) => {
-        docClient.batchWrite(params, function(err, data) {
+        docClient.batchWrite(params, err => {
           if (err) {
             console.error("Unable to delete all item with the request: ", JSON.stringify(params), " along with error: ", JSON.stringify(err));
             reject(getDynamoDBError(err));
@@ -535,7 +521,6 @@ module.exports = ((aws) => {
     listFeedbacks,
     countFeedbacks,
     reportFeedbacks,
-
     addOneFeedback,
     updateOneFeedback,
     deleteFeedbacks,
