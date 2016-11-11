@@ -9,12 +9,11 @@ let aws = require('aws-sdk');
 if (process.env.SERVERLESS_REGION) {
   console.log("set region to", process.env.SERVERLESS_REGION);
   aws.config.update({
-    region: process.env.SERVERLESS_REGION
+    region: process.env.SERVERLESS_REGION,
   });
-}
-else{
+} else {
   aws.config.update({
-    region: 'ap-northeast-1'
+    region: 'ap-northeast-1',
   });
 }
 module.exports = aws;
