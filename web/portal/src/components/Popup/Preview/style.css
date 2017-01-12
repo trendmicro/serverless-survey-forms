@@ -62,4 +62,7 @@
             width: 640px;
         }
     }
+    .select {
+        padding-left: 440px;
+    }
 }

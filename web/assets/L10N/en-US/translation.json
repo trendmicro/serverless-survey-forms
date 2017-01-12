@@ -1,6 +1,6 @@
 {
-    "title"						: "Survey form title",
-    "description"				: "Survey form description",
+    "title"                     : "Survey form title",
+    "description"               : "Survey form description",
     "prev"                      : "Prev",
     "next"                      : "Next",
     "submit"                    : "Submit",
@@ -11,7 +11,7 @@
     "error_email_incorrect"     : "Please type an email address in the correct format.",
     "privacy_policy"            : "By providing your email address, you agree to the <a href=\"__url__\" target=\"_blank\">Trend Micro Privacy Policy</a>",
     "privacy_description"       : "Thanks for sharing your feedback with Trend Micro.",
-    "privacy_label"             : "If Trend Micro has a follow-up survey on the Email Scan, would you like to participate?",
+    "privacy_label"             : "If Trend Micro has a follow-up survey on Trend Micro Mail Scanner, would you like to participate?",
     "privacy_terms"             : "Yes, Trend Micro can reach me at this address:",
-    "privacy_input"             : "Type your email."
+    "privacy_input"             : "Type your email address"
 }

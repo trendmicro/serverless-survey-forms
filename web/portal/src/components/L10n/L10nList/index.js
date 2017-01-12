@@ -31,13 +31,13 @@ class L10nList extends PureComponent {
         const { lang, surveyL10n, selectedL10n } = this.props;
         let list = [];
         Object.keys(surveyL10n).sort().forEach((item, idx) => {
-            const basic = lang === item ? ' (default)' : '';
             const language = (
                 <a
                     className="link ut-title"
                     data-id={item}
+                    data-basic={lang === item}
                     onClick={this._onClickEdit}
-                >{item}{basic}</a>);
+                >{`${item}${lang === item ? ' (default)' : ''}`}</a>);
             const tr = (
                 <tr key={idx}>
                     <td className={styles.subject}>
@@ -81,8 +81,13 @@ class L10nList extends PureComponent {
     _onClickEdit(e) {
         const { selectedL10n, questionsActions, popupActions } = this.props;
         const value = e.currentTarget.getAttribute('data-id');
+        const basic = e.currentTarget.getAttribute('data-basic');
         if (selectedL10n !== value) questionsActions.toggleSelectedL10n(value);
-        popupActions.setPopup('ReImportL10n');
+        if (basic === 'true') {
+            popupActions.setPopup('ExportL10n');
+        } else {
+            popupActions.setPopup('ReImportL10n');
+        }
     }
 }
 

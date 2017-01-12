@@ -1,5 +1,6 @@
 
-/* eslint new-cap: ["error", { "capIsNew": false, "properties": true }] */
+/* eslint new-cap: ["error", { "capIsNew": false, "properties": true }],
+no-use-before-define: "off" */
 
 import * as types from '../constants/ActionTypes';
 import * as values from '../constants/DefaultValues';
@@ -69,10 +70,11 @@ export function setQuestionEditable(flag) {
 
 export function finishEdit() {
     return (dispatch, getState) => {
-        const { selectedUser } = getState();
+        const { selectedUser, selectedL10n } = getState();
         dispatch(setSurveyID(''));
         dispatch(setSubject('', ''));
         dispatch(setQuestionEditable(true));
+        dispatch(toggleSelectedL10n(selectedL10n));
         dispatch({ type: types.INIT_QUESTIONS });
         dispatch({ type: types.INIT_SURVEY_POLICY });
         // TODOS: temporarily remove router

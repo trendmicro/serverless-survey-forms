@@ -48,12 +48,14 @@ describe('[Portal] questions action', () => {
 
     it('should create an action to finish edit question', () => {
         const store = mockStore({
-            selectedUser: {}
+            selectedUser: {},
+            surveyL10n: {}
         });
         const expectedActions = [
             { type: types.SET_SURVEYID, surveyID: '' },
             { type: types.SET_SUBJECT, subject: '', lang: '' },
             { type: types.SET_EDITABLE },
+            { type: types.REMOVE_SELECTED_L10N },
             { type: types.INIT_QUESTIONS },
             { type: types.INIT_SURVEY_POLICY },
             { type: types.SET_WEBPAGE, webpage: 'index' }

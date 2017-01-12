@@ -25,6 +25,12 @@ class ExportL10n extends PureComponent {
 
     render() {
         const { lang, surveyL10n } = this.props;
+        const originJson = surveyL10n[lang];
+        const orderedJson = {};
+        Object.keys(originJson).sort().forEach((key) => {
+            orderedJson[key] = originJson[key];
+        });
+
         return (
             <div className={`${styles.popup} popup`}>
                 <div className="popup_wrap">
@@ -46,7 +52,7 @@ class ExportL10n extends PureComponent {
                                 <textarea
                                     id="l10n"
                                     className="textarea"
-                                    value={JSON.stringify(surveyL10n[lang])}
+                                    value={JSON.stringify(orderedJson, undefined, 4)}
                                     rows="5"
                                     readOnly="true"
                                 ></textarea>

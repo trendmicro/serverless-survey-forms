@@ -26,7 +26,11 @@ class ReImportL10n extends PureComponent {
 
     render() {
         const { selectedL10n, surveyL10n } = this.props;
-        const json = JSON.stringify(surveyL10n[selectedL10n]);
+        const originJson = surveyL10n[selectedL10n];
+        const orderedJson = {};
+        Object.keys(originJson).sort().forEach((key) => {
+            orderedJson[key] = originJson[key];
+        });
 
         return (
             <div className={`${styles.popup} popup`}>
@@ -51,7 +55,7 @@ class ReImportL10n extends PureComponent {
                                 <textarea
                                     id="l10n"
                                     className="textarea"
-                                    defaultValue={json}
+                                    defaultValue={JSON.stringify(orderedJson, undefined, 4)}
                                     rows="5"
                                 ></textarea>
                                 <div id="l10nMsg" className="input__msg"></div>
@@ -102,7 +106,8 @@ class ReImportL10n extends PureComponent {
                         const isEqual = basicCompared.length === l10nCompared.length
                             && basicCompared.every((ele, idx) => ele === l10nCompared[idx]);
                         if (!isEqual) {
-                            msg.innerHTML = 'There is something wrong with the key of json.';
+                            msg.innerHTML = 'There are some keys can\'t correspond'
+                                + ' to the default language.';
                         } else {
                             msg.innerHTML = '';
                             questionsActions.importL10n({ [selectedL10n]: l10n });

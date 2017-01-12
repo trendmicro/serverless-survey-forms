@@ -52,6 +52,7 @@ class SurveyList extends PureComponent {
                             {title}
                         </div>
                     </td>
+                    <td className={styles.uuid}>{item.surveyid}</td>
                     <td className={`${styles.response} ut-count`}>{item.count}</td>
                     <td className={styles.dt}>{moment(item.datetime).format('LLL')}</td>
                 </tr>
@@ -62,7 +63,7 @@ class SurveyList extends PureComponent {
             <table className={styles.listTb}>
                 <thead>
                     <tr>
-                        <th className={styles.subject}>
+                        <th colSpan="2" className={styles.subject}>
                             <span>Name</span>
                         </th>
                         <th className={styles.response}>

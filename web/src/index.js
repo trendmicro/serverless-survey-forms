@@ -1,6 +1,4 @@
 
-// bootstrap css
-// import styles from './css/main.css';
 /* eslint no-unused-vars:0 */
 require('../css/main.css');
 

@@ -50,6 +50,7 @@ const mixins = {
         const downloadLink = document.createElement('a');
         downloadLink.addEventListener('click', () => {
             if (navigator.userAgent.match(/Version\/([0-9\._]+).*Safari/)) {
+                // eslint-disable-next-line no-alert
                 alert('Safari is unsupported this. Please manually press command + S.');
             }
             const blob = new Blob([csv], { type: 'text/csv;charset=charset=utf-8;' });

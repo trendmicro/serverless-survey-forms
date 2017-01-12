@@ -71,6 +71,7 @@ export function changeUserRole(idx, role) {
                 }
             }
             if (flag) {
+                // eslint-disable-next-line no-alert
                 alert('You can\'t change the last Admin\'s role.');
                 dispatch(changeUserRoleFailure('this is the last Admin'));
                 return;

@@ -128,7 +128,7 @@ function getL10n(l10n, key) {
 }
 
 export function handleReportHeader(survey, privacy, l10n) {
-    const header = ['Client ID', 'Locale'];
+    const header = ['Client ID', 'Product Uid', 'Locale'];
     survey.forEach((que, idx) => {
         header.push(`Q${idx + 1}_${getL10n(l10n, que.label)}`);
         switch (que.type) {
@@ -168,7 +168,11 @@ export function handleReportContent(survey, privacy, feedbackAllData, l10n) {
     const content = [];
     for (const feed of feedbackAllData) {
         const data = feed.feedback;
-        const body = [`${feed.clientid}${String.fromCharCode(8)}`, data.locale || ''];
+        const productUid = data.productUid || '--';
+        const body = [
+            `${feed.clientid}${String.fromCharCode(8)}`,
+            productUid.length === 1 ? '--' : productUid,
+            data.locale || ''];
         survey.forEach((que, idx) => {
             const num = idx + 1;
             const feedbackQue = data[`Q${num}`];

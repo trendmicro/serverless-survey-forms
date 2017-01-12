@@ -46,7 +46,7 @@
         word-wrap: break-word;
     }
     .subject {
-        width: 380px;
+        width: 300px;
 
         .checkboxItem {
             margin-left: 20px;
@@ -55,7 +55,10 @@
             margin-bottom: 14px;
         }
     }
+    .uuid {
+        width: 220px;
+    }
     .response {
-        width: 160px;
+        width: 120px;
     }
 }
