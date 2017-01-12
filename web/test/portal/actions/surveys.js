@@ -217,7 +217,7 @@ describe('[Portal] surveys action', () => {
         expect(
             actions.handleReportHeader(question, true, {})
         ).toEqual([
-            ['Client ID', 'Locale', 'Q1_Question 1', 'Please input the reason',
+            ['Client ID', 'Product Uid', 'Locale', 'Q1_Question 1', 'Please input the reason',
             'Q2_Question 2', 'option A', 'option B', 'Tell me', 'Q3_Question 3', 'Why',
             'Q4_Question 4', 'Q5_Question 5', 'Privacy email', 'Feedback time']
         ]);
@@ -270,6 +270,7 @@ describe('[Portal] surveys action', () => {
             clientid: '11112222',
             datetime: 1475233633672,
             feedback: {
+                productUid: 'xxxxxxx',
                 Q1: {
                     label: 'Question 1',
                     type: 'rating',
@@ -318,7 +319,7 @@ describe('[Portal] surveys action', () => {
         expect(
             result
         ).toEqual([
-            ['11112222\b', '', 'Satisfied', 'the reason', '2', 'option A',
+            ['11112222\b', 'xxxxxxx', '', 'Satisfied', 'the reason', '2', 'option A',
             'option B', 'option B\'s input', 'Dissatisfied', 'radio\'s input',
             'Single line input', 'Multiline input']
         ]);
@@ -377,7 +378,7 @@ describe('[Portal] surveys action', () => {
         expect(
             result
         ).toEqual([
-            ['11112222\b', '', '', '', '', '', '', '', '', '', '', '', '']
+            ['11112222\b', '--', '', '', '', '', '', '', '', '', '', '', '', '']
         ]);
     });
 

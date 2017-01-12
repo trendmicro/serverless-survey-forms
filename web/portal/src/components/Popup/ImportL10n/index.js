@@ -29,7 +29,10 @@ class ImportL10n extends PureComponent {
 
     render() {
         // language options setting
-        const item = [{ value: 'en-US', label: 'English (United States)' }];
+        const item = [
+            { value: 'en-US', label: 'English (United States)' },
+            { value: 'zh-TW', label: 'Chinese (Taiwan)' }
+        ];
         return (
             <div className={`${styles.popup} popup`}>
                 <div className="popup_wrap">
@@ -124,7 +127,8 @@ class ImportL10n extends PureComponent {
                         const isEqual = basicCompared.length === l10nCompared.length
                             && basicCompared.every((ele, idx) => ele === l10nCompared[idx]);
                         if (!isEqual) {
-                            msg.innerHTML = 'There is something wrong with the key of json.';
+                            msg.innerHTML = 'There are some keys can\'t correspond'
+                                + ' to the default language.';
                         } else {
                             msg.innerHTML = '';
                             if (this.state.newLang !== '' && langMsg.innerHTML === '') {

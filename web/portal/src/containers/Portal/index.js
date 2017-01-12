@@ -43,7 +43,7 @@ export class Portal extends PureComponent {
     }
 
     render() {
-        const { account, loading, subject, lang, surveyID, surveyVersion,
+        const { account, loading, subject, lang, surveyID, surveyL10n, surveyVersion,
             preview, previewID, selectedUser, webpage,
             editSubject, editSubjectActions, subjectActions,
             questionsActions, previewActions, usersActions,
@@ -60,7 +60,7 @@ export class Portal extends PureComponent {
             webpageActions
         };
         const subProps = { subject, lang, surveyID, editSubjectActions, subjectActions };
-        const preProps = { account, preview, previewID, previewActions };
+        const preProps = { account, lang, preview, previewID, previewActions };
         const loadingView = loading ? <Loading /> : '';
         return (
             <div ref="root">
@@ -70,7 +70,7 @@ export class Portal extends PureComponent {
                 </div>
 
                 {editSubject ? <Subject {...subProps} /> : ''}
-                {preview ? <Preview {...preProps} /> : ''}
+                {preview ? <Preview {...preProps} langList={Object.keys(surveyL10n)} /> : ''}
                 {this._handlePopup()}
                 {this._checkAccountStatus()}
 

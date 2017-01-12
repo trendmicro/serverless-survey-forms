@@ -45,9 +45,10 @@ export function saveClientID(clientID) {
 export function saveFeedback() {
     const clientID = `${getRandomArbitrary(1000, 9999)}${new Date().getTime()}`;
     return (dispatch, getState) => {
-        const locale = getState().settings.locale || '';
+        const locale = getState().settings.locale || ' ';
         const feedback = getState().submit;
         const surveyid = getState().settings.surveyid;
+        const productUid = getState().prefillData.product_uid || ' ';
         dispatch(saveClientID(clientID));
         return fetch(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientID}`, {
             method: 'POST',
@@ -57,7 +58,7 @@ export function saveFeedback() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                feedback: Object.assign({}, feedback, { locale: locale })
+                feedback: Object.assign({}, feedback, { locale, productUid })
             })
         })
         .then((response) => {
@@ -71,12 +72,13 @@ export function saveFeedback() {
 
 export function updateFeedback(closeWhenDone, privacyData) {
     return (dispatch, getState) => {
-        const locale = getState().settings.locale || '';
+        const locale = getState().settings.locale || ' ';
         const feedback = getState().submit;
         const surveyid = getState().settings.surveyid;
         const clientID = getState().clientID;
+        const productUid = getState().prefillData.product_uid || ' ';
         const submittedData = {
-            feedback: Object.assign({}, feedback, { locale: locale })
+            feedback: Object.assign({}, feedback, { locale, productUid })
         };
         // Privacy data
         if (privacyData) {

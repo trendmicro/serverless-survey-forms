@@ -8,16 +8,16 @@ import { routerMiddleware } from 'react-router-redux';
 import rootReducer from '../reducers';
 
 export default function configureStore() {
-    const loggerMiddleware = createLogger();
+    const middlewares = [thunkMiddleware];
+    if (process.env.NODE_ENV === 'development') {
+        // Only enable loggerMiddleware in development
+        middlewares.push(createLogger());
+    }
+    middlewares.push(routerMiddleware(browserHistory));
 
-    // Middleware
-    // Only enable loggerMiddleware in debug mode
-    const createStoreWithMiddleware = applyMiddleware(
-        thunkMiddleware,
-        loggerMiddleware,
-        routerMiddleware(browserHistory)
-    )(createStore);
-
-    const store = createStoreWithMiddleware(rootReducer);
+    const store = createStore(
+        rootReducer,
+        applyMiddleware(...middlewares)
+    );
     return store;
 }

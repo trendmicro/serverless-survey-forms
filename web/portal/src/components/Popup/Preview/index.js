@@ -10,6 +10,7 @@ import Config from '../../../config';
 import Mixins from '../../../mixins/global';
 import IFrame from '../../IFrame';
 import IconButton from '../../IconButton';
+import Select from '../../Select';
 
 class Preview extends PureComponent {
 
@@ -17,11 +18,13 @@ class Preview extends PureComponent {
         super(props);
         // set initial states
         this.state = {
-            previewType: `${props.preview}Icon`
+            previewType: `${props.preview}Icon`,
+            selectedLang: props.lang
         };
 
         this._btnClickEvent = this._btnClickEvent.bind(this);
         this._onChangePreviewType = this._onChangePreviewType.bind(this);
+        this._onLanguageChange = this._onLanguageChange.bind(this);
     }
 
     componentDidMount() {
@@ -33,8 +36,8 @@ class Preview extends PureComponent {
     }
 
     render() {
-        const { account, previewID, preview } = this.props;
-        const { previewType } = this.state;
+        const { account, previewID, preview, langList } = this.props;
+        const { previewType, selectedLang } = this.state;
         const type = preview === 'embedded' ? preview : 'default';
         let buttons = [];
         ['embeddedIcon', 'previewPhoneIcon', 'previewPadIcon', 'previewDesktopIcon'].
@@ -51,9 +54,16 @@ class Preview extends PureComponent {
                     />);
             });
 
+        // language options setting
+        const langItem = [];
+        langList.forEach((_lang) => {
+            langItem.push({ value: _lang, label: _lang });
+        });
+
         // to prevent cache, add Date.now() to change src
         const url = `${Config.baseURL}/feedback/index.html?v=${Date.now()}`
-            + `&accountid=${account.accountid}&surveyid=${previewID}&preview=true`;
+            + `&accountid=${account.accountid}&surveyid=${previewID}`
+            + `&locale=${selectedLang}&preview=true`;
         const classSet = {
             [styles.embedded]: preview === 'embedded'
         };
@@ -83,6 +93,14 @@ class Preview extends PureComponent {
                                 <div className={styles.control}>
                                     {buttons}
                                 </div>
+                                <div className={styles.select}>
+                                    <Select
+                                        id="langSelect"
+                                        item={langItem}
+                                        selectedItem={selectedLang}
+                                        onChangeHandle={this._onLanguageChange}
+                                    />
+                                </div>
                             </div>
                             {qustom}
                         </div>
@@ -104,6 +122,12 @@ class Preview extends PureComponent {
     _btnClickEvent() {
         const { previewActions } = this.props;
         previewActions.closePreview();
+    }
+
+    _onLanguageChange(e) {
+        this.setState({
+            selectedLang: e.currentTarget.getAttribute('data-value')
+        });
     }
 }
 

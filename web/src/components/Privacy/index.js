@@ -22,7 +22,7 @@ class Privacy extends PureComponent {
         }
         this.state = {
             email,
-            terms: false,
+            terms: true,
             error: '',
             participate: false
         };

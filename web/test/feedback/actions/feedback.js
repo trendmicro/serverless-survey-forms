@@ -100,14 +100,15 @@ describe('[Feedback] feedback action', () => {
                 type:"checkbox"
             }
         };
+        const prefillData = {};
         const postData = {
-            feedback: Object.assign({}, submit, { locale: settings.locale })
+            feedback: Object.assign({}, submit, { locale: settings.locale, productUid: ' ' })
         };
         nock(Config.baseURL)
         .intercept(`/api/v1/feedbacks/${settings.surveyid}/${clientID}`, 'PUT', JSON.stringify(postData))
         .reply(200, { datetime: Date.now() });
 
-        const store = mockStore({ clientID, settings, submit });
+        const store = mockStore({ clientID, settings, submit, prefillData });
         const expectedActions = [];
         return store.dispatch(actions.updateFeedback())
             .then(() => {
@@ -194,7 +195,8 @@ describe('[Feedback] feedback action', () => {
             surveyid: "1111-2222-3333-4444",
             type: "default"
         };
-        const store = mockStore({ requiredData, settings });
+        const prefillData = {};
+        const store = mockStore({ requiredData, settings, prefillData });
 
         store.dispatch(actions.checkRequired("done", 0));
         const expectedActions = [
