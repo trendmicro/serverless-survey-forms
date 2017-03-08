@@ -112,30 +112,34 @@ class App extends PureComponent {
     }
 }
 
-if (window.MessageChannel) {
-    // Message Channel
-    window.onmessage = (e) => {
-        console.log('Init: Message Channel from Client: ', e.data);
-        // Store client prefilling info
-        if (e.data) {
-            store.dispatch(SurveyActions.savePrefill(e.data));
-        }
-        // e.ports[0] is channel.port2, sent from the main frame
+const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
+const eventer = window[eventMethod];
+const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
+eventer(messageEvent, (e) => {
+    console.log('Qustom onmessage event: ', e);
+    if (!e ||
+        !e.data) {
+        console.log('Qustom: Not a valid message', e);
+        return;
+    }
+    // Enable this when dev env issue fixed: /(^https:\/\/).+(\.trendmicro\.com$)/
+    if (!e.origin.match(/(^https:\/\/)/)) {
+        console.log('Qustom: e.origin didn\'t use https protocol', e.origin);
+        return;
+    }
+    if (!e.data.source ||
+        e.origin !== e.data.source) {
+        console.log('Qustom: Received Message did not come from its match source',
+            e.origin, e.data.source);
+        return;
+    }
+    console.log('Qustom Init: Post Message received from Client:  ', e.origin, e.data);
+    // Store client prefilling info
+    store.dispatch(SurveyActions.savePrefill(e.data));
+    // Via message channel
+    if (e.ports && e.ports[0]) {
         window.port2 = e.ports[0];
-    };
-} else {
-    // Post Message
-    const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
-    const eventer = window[eventMethod];
-    const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
-    eventer(messageEvent, (e) => {
-        if (e.origin !== e.data.source) return;
-        console.log('Init: Post Message received from Client:  ', e.data);
-        // Store client prefilling info
-        if (e.data) {
-            store.dispatch(SurveyActions.savePrefill(e.data));
-        }
-    }, false);
-}
+    }
+}, false);
 
 export default App;

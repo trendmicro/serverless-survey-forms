@@ -255,7 +255,7 @@ export function checkDone(id) {
 export function sendMsgToClient(msg, extraInfo) {
     return () => {
         const data = Object.assign({}, {
-            source: window.location.origin,
+            source: `${window.location.protocol}//${window.location.hostname}`,
             msg: msg
         }, extraInfo);
 
