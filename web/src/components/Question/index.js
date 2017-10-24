@@ -15,21 +15,33 @@ class Question extends PureComponent {
     render() {
         const { id, text, required } = this.props;
         return (
-            <div ref="root">
-                <span
-                    className={classNames({
-                        [`${styles.question}`]: true,
-                        [`${styles.required}`]: required,
-                        'ut-question': true,
-                        'ut-required': required
-                    })}
+            <div
+                ref="root"
+                className={classNames({
+                    [`${styles.question}`]: true,
+                    [`${styles.required}`]: required,
+                    'ut-question': true,
+                    'ut-required': required
+                })}
+            >
+                <div
+                    title={id}
+                    className={styles.title}
                 >
-                    {`${id}. ${text}`}
-                    {this.props.children}
-                </span>
+                    <div
+                        className={styles.text}
+                        dangerouslySetInnerHTML={this._handleQuestionTitle(text)}
+                    />
+                </div>
+                {this.props.children}
             </div>
         );
     }
+
+    _handleQuestionTitle(text) {
+        return { __html: text.replace(/(\r\n|\r|\n)/g, '<br />') };
+    }
+
 }
 
 Question.PropTypes = {

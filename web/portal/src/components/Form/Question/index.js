@@ -14,17 +14,28 @@ class Question extends Component {
     render() {
         const { id, text, required } = this.props;
         return (
-            <div ref="root">
-                <span
-                    className={classNames({
-                        [`${styles.question}`]: true,
-                        [`${styles.required}`]: required
-                    })}
+            <div
+                ref="root"
+                className={classNames({
+                    [`${styles.question}`]: true,
+                    [`${styles.required}`]: required
+                })}
+            >
+                <div
+                    title={id}
+                    className={styles.title}
                 >
-                    {`${id}. ${text}`}
-                </span>
+                    <div
+                        className={styles.text}
+                        dangerouslySetInnerHTML={this._handleQuestionTitle(text)}
+                    />
+                </div>
             </div>
         );
+    }
+
+    _handleQuestionTitle(text) {
+        return { __html: text.replace(/(\r\n|\r|\n)/g, '<br />') };
     }
 
 }

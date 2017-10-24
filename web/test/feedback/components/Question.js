@@ -16,12 +16,12 @@ describe('[Feedback] Testing Question Component', () => {
         );
         const question = TestUtils.findRenderedDOMComponentWithClass(content, 'ut-question');
 
-        expect(question.textContent).toEqual('2. Question 2');
+        expect(question.textContent).toEqual('Question 2');
     });
 
     it('should contain ut-required', () => {
         const content = TestUtils.renderIntoDocument(
-            <Question required={true} />
+            <Question id={2} text={'Question 2'} required={true} />
         );
         const requiredElement = TestUtils.scryRenderedDOMComponentsWithClass(content, 'ut-required');
 
