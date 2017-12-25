@@ -1,15 +1,14 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import ControlBtn from '../../../portal/src/components/L10n/ControlBtn';
 import IconButton from '../../../portal/src/components/IconButton';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing L10nControlBtn Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         lang: 'en-US',

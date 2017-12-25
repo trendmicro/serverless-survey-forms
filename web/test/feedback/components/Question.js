@@ -1,14 +1,12 @@
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Question from '../../../src/components/Question';
 
 DomMock('<html><body></body></html>');
 
 describe('[Feedback] Testing Question Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     it('should contain correct question id and text', () => {
         const content = TestUtils.renderIntoDocument(

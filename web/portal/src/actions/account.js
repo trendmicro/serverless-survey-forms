@@ -1,6 +1,6 @@
 
 import * as types from '../constants/ActionTypes';
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import Config from '../config';
 import { finishEdit } from './questions';
 
@@ -40,14 +40,14 @@ export function setToken(token) {
 
 export function verifyToken(token) {
     return (dispatch) =>
-        fetch(`${Config.baseURL}/api/v1/mgnt/users/me`, {
+        axios(`${Config.baseURL}/api/v1/mgnt/users/me`, {
             method: 'GET',
             credentials: 'same-origin',
             headers: {
                 authorization: token
             }
         })
-        .then(response => response.json())
+        .then(response => response.data)
         .then(data => {
             if (data.hasOwnProperty('accountid') && data.accountid) {
                 dispatch(setToken(token));

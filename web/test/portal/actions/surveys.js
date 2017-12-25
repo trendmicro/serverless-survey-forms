@@ -214,8 +214,55 @@ describe('[Portal] surveys action', () => {
                 input: 'Please type here',
                 required: false
             }];
+        const feedback = [{
+            clientid: '11112222',
+            datetime: 1475233633672,
+            feedback: {
+                productUid: 'xxxxxxx',
+                Q1: {
+                    label: 'Question 1',
+                    type: 'rating',
+                    data: [{
+                        value: '1APPJND2CYBHCD9V0FEBA',
+                        label: 'Satisfied',
+                        input: 'the reason'
+                    }],
+                },
+                Q2: {
+                    label: 'Question 2',
+                    type: 'checkbox',
+                    data: [
+                        { value: '1APPJND2CYA3FQEBJ3K7O', label: 'option A' },
+                        { value: '1APPJND2CYBHCD9V0FEBA', label: 'option B', input: 'option B\'s input' }
+                    ]
+                },
+                Q3: {
+                    label: 'Question 3',
+                    type: 'radio',
+                    data: [{
+                        value: '1APPJND2CYA3FQEBJ3K7O',
+                        label: 'Dissatisfied',
+                        input: 'radio\'s input'
+                    }]
+                },
+                Q4: {
+                    label: 'Question 4',
+                    type: 'text',
+                    data: [{
+                        input: 'Single line input'
+                    }]
+                },
+                Q5: {
+                    label: 'Question 5',
+                    type: 'textarea',
+                    data: [{
+                        input: 'Multiline input'
+                    }]
+                }
+            }
+        }];
         expect(
-            actions.handleReportHeader(question, true, {})
+            actions.handleReportHeader(question, true, feedback, {})
         ).toEqual([
             ['Client ID', 'Product Uid', 'Locale', 'Q1_Question 1', 'Please input the reason',
             'Q2_Question 2', 'option A', 'option B', 'Tell me', 'Q3_Question 3', 'Why',
@@ -224,6 +271,9 @@ describe('[Portal] surveys action', () => {
     });
 
     it('should create an action to handle export surveys content', () => {
+        const header = [['Client ID', 'Product Uid', 'Locale', 'Q1_Question 1', 'Please input the reason',
+            'Q2_Question 2', 'option A', 'option B', 'Tell me', 'Q3_Question 3', 'Why',
+            'Q4_Question 4', 'Q5_Question 5', 'Privacy email', 'Feedback time']];
         const question = [
             {
                 id: '1AN2AL0F9BNA7A',
@@ -314,7 +364,7 @@ describe('[Portal] surveys action', () => {
             }
         }];
 
-        const result = actions.handleReportContent(question, false, feedback, {});
+        const result = actions.handleReportContent(question, false, feedback, {}, header);
         result[0].pop();
         expect(
             result
@@ -326,6 +376,9 @@ describe('[Portal] surveys action', () => {
     });
 
     it('should create an action to handle export surveys content when no data', () => {
+        const header = [['Client ID', 'Product Uid', 'Locale', 'Q1_Question 1', 'Please input the reason',
+            'Q2_Question 2', 'option A', 'option B', 'Tell me', 'Q3_Question 3', 'Why',
+            'Q4_Question 4', 'Q5_Question 5', 'Privacy email', 'Feedback time']];
         const question = [
             {
                 id: '1AN2AL0F9BNA7A',
@@ -373,7 +426,7 @@ describe('[Portal] surveys action', () => {
             datetime: 1475233633672,
             feedback: {}
         }];
-        const result = actions.handleReportContent(question, true, feedback);
+        const result = actions.handleReportContent(question, true, feedback, {}, header);
         result[0].pop();
         expect(
             result
@@ -478,7 +531,7 @@ describe('[Portal] surveys action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .post(`/api/v1/mgnt/surveys/${account.accountid}`, JSON.stringify(postData))
+        .post(`/api/v1/mgnt/surveys/${account.accountid}`, postData)
         .reply(200, {
             surveyid: surveyID,
             datetime: Date.now()

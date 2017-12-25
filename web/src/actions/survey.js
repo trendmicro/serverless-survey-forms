@@ -1,5 +1,5 @@
 import * as types from '../constants/ActionTypes';
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import config from '../config';
 import * as feedbackAction from './feedback';
 
@@ -28,7 +28,8 @@ export function receiveSurveyFailure(err) {
 export function getFeeback(accountid, surveyid, clientid) {
     return (dispatch) => {
         dispatch(requestSurvey());
-        return fetch(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientid}`, {
+        return axios(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientid}`, {
+            method: 'GET',
             credentials: 'same-origin',
             headers: {
                 'Cache-Control': 'max-age=0'
@@ -40,21 +41,23 @@ export function getFeeback(accountid, surveyid, clientid) {
                 dispatch(fetchSurvey(accountid, surveyid));
                 throw new Error('Bad response from server');
             }
-            return response.json();
+            return response.data;
         })
         .then(data => {
             // store data to submit
             dispatch(feedbackAction.recordFeedback(data.feedback));
             dispatch(feedbackAction.saveClientID(clientid));
             dispatch(fetchSurvey(accountid, surveyid));
-        });
+        })
+        .catch(err => console.log(err));
     };
 }
 
 export function fetchSurvey(accountid, surveyid) {
     return (dispatch, getState) => {
         dispatch(requestSurvey());
-        return fetch(`${config.baseURL}/api/v1/surveys/${accountid}/${surveyid}`, {
+        return axios(`${config.baseURL}/api/v1/surveys/${accountid}/${surveyid}`, {
+            method: 'GET',
             credentials: 'same-origin',
             headers: {
                 'Cache-Control': 'max-age=0'
@@ -64,7 +67,7 @@ export function fetchSurvey(accountid, surveyid) {
             if (response.status >= 400) {
                 throw new Error('Bad response from server');
             }
-            return response.json();
+            return response.data;
         })
         .then(data => {
             if (data && data.survey) {
@@ -81,7 +84,8 @@ export function fetchSurvey(accountid, surveyid) {
             } else {
                 dispatch(receiveSurveyFailure('Error'));
             }
-        });
+        })
+        .catch(err => console.log(err));
     };
 }
 

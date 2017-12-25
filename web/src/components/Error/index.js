@@ -6,7 +6,8 @@
 // CSS
 import styles from './style.css';
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import PureComponent from 'react-pure-render/component';
 import classNames from 'classnames';
 
@@ -29,7 +30,7 @@ class Error extends PureComponent {
     }
 }
 
-Error.PropTypes = {
+Error.propTypes = {
     msg: PropTypes.string.isRequired,
     extraClass: PropTypes.string
 };

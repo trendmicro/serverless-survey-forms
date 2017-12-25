@@ -15,9 +15,10 @@
 // CSS
 import styles from './style.css';
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import PureComponent from 'react-pure-render/component';
-import I18Next from 'i18next';
+import I18Next from 'i18next/index';
 
 import Question from '../Question/index';
 import Error from '../Error';
@@ -178,7 +179,7 @@ class Rating extends PureComponent {
     }
 }
 
-Rating.PropTypes = {
+Rating.propTypes = {
     id: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
     onChangeHandle: PropTypes.func.isRequired

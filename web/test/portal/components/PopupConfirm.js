@@ -1,15 +1,14 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Confirm from '../../../portal/src/components/Popup/Confirm';
 import Button from '../../../portal/src/components/Button';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing Confirm Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         popup: '',

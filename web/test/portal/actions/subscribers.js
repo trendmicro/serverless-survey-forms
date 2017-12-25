@@ -89,7 +89,7 @@ describe('[Portal] subscribers action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .intercept(`/api/v1/mgnt/subscribers/${surveyID}`, 'POST', JSON.stringify(postData))
+        .intercept(`/api/v1/mgnt/subscribers/${surveyID}`, 'POST', postData)
         .reply(200, {});
 
         const store = mockStore({ token, surveyID, subscribers });
@@ -137,7 +137,7 @@ describe('[Portal] subscribers action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .intercept(`/api/v1/mgnt/subscribers/${surveyID}`, 'DELETE', '')
+        .intercept(`/api/v1/mgnt/subscribers/${surveyID}`, 'DELETE', {})
         .reply(200, {});
 
         const store = mockStore({ token, surveyID, subscribers });

@@ -53,8 +53,12 @@ const mixins = {
                 // eslint-disable-next-line no-alert
                 alert('Safari is unsupported this. Please manually press command + S.');
             }
-            const blob = new Blob([csv], { type: 'text/csv;charset=charset=utf-8;' });
-            saveAs(blob, `${filename}.csv`);
+            try {
+                const blob = new Blob([csv], { type: 'text/csv;charset=charset=utf-8;' });
+                saveAs(blob, `${filename}.csv`);
+            } catch (e) {
+                console.log(`Exception: ${e}`);
+            }
         });
         downloadLink.click();
     },

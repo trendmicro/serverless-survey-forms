@@ -5,7 +5,8 @@
  **/
 import styles from './style.css';
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import PureComponent from 'react-pure-render/component';
 import classNames from 'classnames';
 import Button from '../Button';
@@ -126,7 +127,7 @@ class Pagination extends PureComponent {
     }
 }
 
-Pagination.PropTypes = {
+Pagination.propTypes = {
     pages: PropTypes.number.isRequired,
     currentPage: PropTypes.number
 };

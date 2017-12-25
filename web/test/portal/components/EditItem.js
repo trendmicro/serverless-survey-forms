@@ -1,15 +1,14 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
 import { wrapInTestContext } from '../../helpers/dnd-test';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import EditItem from '../../../portal/src/components/EditPanel/EditItem';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing EditItem Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         id: 0,
@@ -25,7 +24,7 @@ describe('[Portal] Testing EditItem Component', () => {
 
     it('edit option items: option content', () => {
         const input = TestUtils.scryRenderedDOMComponentsWithClass(contentRoot, 'ut-input');
-        expect(input[0].value).toEqual(props.data.label);
+        expect(input[0].value).toEqual(props.data.label.toString());
     });
 
     it('edit option items: drag option', () => {
@@ -33,7 +32,7 @@ describe('[Portal] Testing EditItem Component', () => {
         const component = TestUtils.findRenderedDOMComponentWithClass(contentRoot, 'ut-item');
 
         // Expect opacity is 1 before drag
-        expect(component.style.opacity).toEqual(1);
+        expect(component.style.opacity).toEqual("1");
 
         const dragItem = TestUtils.findRenderedComponentWithType(contentRoot, EditItem);
         const targetItem = dragItem.decoratedComponentInstance;
@@ -41,6 +40,6 @@ describe('[Portal] Testing EditItem Component', () => {
         backend.simulateHover([targetItem.getHandlerId()]);
 
         // Expect opacity is 0.1 when hover
-        expect(component.style.opacity).toEqual(0.1);
+        expect(component.style.opacity).toEqual("0.1");
     });
 });

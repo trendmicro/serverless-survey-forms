@@ -15,7 +15,8 @@
 // CSS
 import styles from './style.css';
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import PureComponent from 'react-pure-render/component';
 import classNames from 'classnames';
@@ -148,7 +149,7 @@ class Select extends PureComponent {
     }
 }
 
-Select.PropTypes = {
+Select.propTypes = {
     id: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
     onChangeHandle: PropTypes.func.isRequired

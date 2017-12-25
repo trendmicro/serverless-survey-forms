@@ -148,7 +148,7 @@ describe('[Portal] users action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .intercept('/api/v1/mgnt/users/', 'PUT', JSON.stringify(postData))
+        .intercept('/api/v1/mgnt/users/', 'PUT', postData)
         .reply(200, {});
 
         const store = mockStore({ users, token });

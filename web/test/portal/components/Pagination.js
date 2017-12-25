@@ -1,16 +1,15 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
 import { wrapInTestContext } from '../../helpers/dnd-test';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Pagination from '../../../portal/src/components/Form/Pagination';
 import Item from '../../../portal/src/components/Form/Item';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing Pagination Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         questions: [],
@@ -83,8 +82,8 @@ describe('[Portal] Testing Pagination Component', () => {
 
     it('pagination edit: checked dropped position', () => {
         const item = TestUtils.findRenderedDOMComponentWithClass(contentRoot, 'ut-dropped');
-        expect(item).toExist();
-        expect(item.children[0].className).toInclude('edit');
+        expect(item).toBeInstanceOf(Object);
+        expect(item.children[0].className).toContain('edit');
 
         const box = TestUtils.findRenderedDOMComponentWithClass(contentRoot, 'ut-box');
         const list = Array.prototype.slice.call(box.children);

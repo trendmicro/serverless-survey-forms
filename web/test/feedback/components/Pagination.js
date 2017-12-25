@@ -1,14 +1,12 @@
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Pagination from '../../../src/components/Pagination';
 
 DomMock('<html><body></body></html>');
 
 describe('[Feedback] Testing Pagination Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     it('check total pages < 1: Only submit button', () => {
         const content = TestUtils.renderIntoDocument(

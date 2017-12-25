@@ -1,5 +1,5 @@
 
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import moment from 'moment';
 
 import * as types from '../constants/ActionTypes';
@@ -34,14 +34,14 @@ export function getSurveys() {
         const accountid = selectedUser.hasOwnProperty('accountid') ?
             selectedUser.accountid : account.accountid;
 
-        return fetch(`${Config.baseURL}/api/v1/mgnt/surveys/${accountid}`, {
+        return axios(`${Config.baseURL}/api/v1/mgnt/surveys/${accountid}`, {
             method: 'GET',
             credentials: 'same-origin',
             headers: {
                 authorization: token
             }
         })
-        .then(response => response.json())
+        .then(response => response.data)
         .then(data => {
             const surveys = data.surveys.sort((a, b) => {
                 if (a.datetime < b.datetime) return 1;
@@ -92,7 +92,7 @@ export function deleteSurvey() {
         // delete selected user account or user's account
         const accountid = selectedUser.hasOwnProperty('accountid') ?
             selectedUser.accountid : account.accountid;
-        return fetch(
+        return axios(
             `${Config.baseURL}/api/v1/mgnt/surveys/${accountid}/${selectedSurveys}`, {
                 method: 'DELETE',
                 credentials: 'same-origin',
@@ -100,7 +100,7 @@ export function deleteSurvey() {
                     authorization: token
                 }
             })
-            .then(response => response.json())
+            .then(response => response.data)
             .then(() => {
                 dispatch(receiveDeleteSurveysSuccess());
                 dispatch(toggleSelectedSurveys(selectedSurveys));
@@ -127,7 +127,7 @@ function getL10n(l10n, key) {
     return l10n[key] || key;
 }
 
-export function handleReportHeader(survey, privacy, l10n) {
+export function handleReportHeader(survey, privacy, feedbackAllData, l10n) {
     const header = ['Client ID', 'Product Uid', 'Locale'];
     survey.forEach((que, idx) => {
         header.push(`Q${idx + 1}_${getL10n(l10n, que.label)}`);
@@ -161,10 +161,20 @@ export function handleReportHeader(survey, privacy, l10n) {
     if (privacy) header.push('Privacy email');
     header.push('Feedback time');
 
-    return [header];
+    // handle customized header
+    const headData = {};
+    for (const feed of feedbackAllData) {
+        const data = feed.feedback;
+        const keyArray = Object.keys(data).filter((item) => item.indexOf('data-') === 0);
+        keyArray.forEach((item) => {
+            headData[item] = true;
+        });
+    }
+
+    return [header.concat(Object.keys(headData))];
 }
 
-export function handleReportContent(survey, privacy, feedbackAllData, l10n) {
+export function handleReportContent(survey, privacy, feedbackAllData, l10n, header) {
     const content = [];
     for (const feed of feedbackAllData) {
         const data = feed.feedback;
@@ -260,7 +270,13 @@ export function handleReportContent(survey, privacy, feedbackAllData, l10n) {
                 ''
             );
         }
-        body.push(moment(feed.datetime).format('LLL'));
+        body.push(`${moment(feed.datetime).format('YYYY/MM/DD HH:mm:ss')}${String.fromCharCode(8)}`);
+
+        // handle customized header
+        const otherHeader = header[0].slice(header[0].lastIndexOf('Feedback time') + 1);
+        otherHeader.forEach((item) => {
+            body.push(data[item] || '');
+        });
 
         content.push(body);
     }
@@ -275,7 +291,7 @@ export function exportSurvey() {
         // export selected user account or user's account
         const accountid = selectedUser.hasOwnProperty('accountid') ?
             selectedUser.accountid : account.accountid;
-        return fetch(
+        return axios(
             `${Config.baseURL}/api/v1/mgnt/report/${accountid}/${selectedSurveys}`, {
                 method: 'GET',
                 credentials: 'same-origin',
@@ -283,7 +299,7 @@ export function exportSurvey() {
                     authorization: token
                 }
             })
-            .then(response => response.json())
+            .then(response => response.data)
             .then(report => {
                 const survey = report.survey.content;
                 const l10n = report.hasOwnProperty('l10n') ?
@@ -296,11 +312,12 @@ export function exportSurvey() {
                     allSurvey = [...allSurvey, ...page.question];
                 });
 
+                const header = handleReportHeader(allSurvey, privacy, feedback, l10n);
                 Mixins.exportCSV(
                     `[Qustom]${report.subject}_${moment(Date.now()).format('YYYYMMDDHHmmss')}`,
                     'v2',
-                    handleReportHeader(allSurvey, privacy, l10n),
-                    handleReportContent(allSurvey, privacy, feedback, l10n)
+                    header,
+                    handleReportContent(allSurvey, privacy, feedback, l10n, header)
                 );
                 dispatch(receiveReportSuccess());
             })
@@ -331,7 +348,7 @@ export function postCopiedSurvey(questions) {
         };
 
         return postSurvey(account.accountid, postData, token)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.surveyid) {
                     dispatch(postCopiedSurveySuccess());
@@ -350,7 +367,7 @@ export function copySurvey() {
         const { account, selectedSurveys } = getState();
 
         return getOneSurvey(account.accountid, selectedSurveys)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.surveyid) {
                     dispatch(postCopiedSurvey(data));
@@ -382,7 +399,7 @@ export function deleteAllFeedbacks() {
     return (dispatch, getState) => {
         dispatch({ type: types.REQUEST_DELETE_ALLFEEDBACKS });
         const { selectedSurveys, token } = getState();
-        return fetch(
+        return axios(
             `${Config.baseURL}/api/v1/mgnt/feedbacks/${selectedSurveys}`, {
                 method: 'DELETE',
                 credentials: 'same-origin',
@@ -390,7 +407,7 @@ export function deleteAllFeedbacks() {
                     authorization: token
                 }
             })
-            .then(response => response.json())
+            .then(response => response.data)
             .then(() => {
                 dispatch(receiveDeleteAllFeedbacksSuccess());
                 dispatch(getSurveys());

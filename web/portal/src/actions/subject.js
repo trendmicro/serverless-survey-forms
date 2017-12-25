@@ -54,7 +54,7 @@ export function saveSubject(subject, lang) {
 
         dispatch(setSubject(subject, lang));
         return postSurvey(account.accountid, postData, token)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.surveyid) {
                     dispatch(setSurveyID(data.surveyid));

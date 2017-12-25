@@ -1,5 +1,5 @@
 import * as types from '../constants/ActionTypes';
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import config from '../config';
 import * as surveyActions from './survey';
 
@@ -58,16 +58,17 @@ export function saveFeedback() {
             dispatch(saveClientID(clientID));
             method = 'POST';
         }
-        return fetch(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientID}`, {
+        return axios(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientID}`, {
             method,
             credentials: 'same-origin',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                feedback: Object.assign({}, feedback, { locale, productUid })
-            })
+            data: {
+                feedback: Object.assign({}, feedback, { locale, productUid },
+                    getParameterByDataPrefix())
+            }
         })
         .then((response) => {
             if (response.status >= 400) {
@@ -78,6 +79,19 @@ export function saveFeedback() {
     };
 }
 
+function getParameterByDataPrefix() {
+    const parameter = window.location.search.substring(1);
+    const arrParameter = parameter.split('&');
+    const data = {};
+    for (let i = 0; i < arrParameter.length; i++) {
+        if (arrParameter[i].indexOf('data-') === 0) {
+            const arrPair = arrParameter[i].split('=');
+            data[arrPair[0]] = decodeURIComponent(arrPair[1]);
+        }
+    }
+    return data;
+}
+
 export function updateFeedback(closeWhenDone, privacyData) {
     return (dispatch, getState) => {
         const locale = getState().settings.locale || ' ';
@@ -86,20 +100,21 @@ export function updateFeedback(closeWhenDone, privacyData) {
         const clientID = getState().clientID;
         const productUid = getState().prefillData.product_uid || ' ';
         const submittedData = {
-            feedback: Object.assign({}, feedback, { locale, productUid })
+            feedback: Object.assign({}, feedback, { locale, productUid },
+                getParameterByDataPrefix())
         };
         // Privacy data
         if (privacyData) {
             submittedData.feedback.thankyou = privacyData;
         }
-        return fetch(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientID}`, {
+        return axios(`${config.baseURL}/api/v1/feedbacks/${surveyid}/${clientID}`, {
             method: 'PUT',
             credentials: 'same-origin',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(submittedData)
+            data: submittedData
         })
         .then((response) => {
             if (response.status >= 400) {

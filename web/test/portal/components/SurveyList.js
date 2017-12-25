@@ -1,14 +1,13 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import SurveyList from '../../../portal/src/components/List/SurveyList';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing SurveyList Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         surveys: [
@@ -44,17 +43,17 @@ describe('[Portal] Testing SurveyList Component', () => {
 
     it('survey list: check survey data', () => {
         const title = TestUtils.scryRenderedDOMComponentsWithClass(content, 'ut-title');
-        expect(title[0].textContent).toEqual(props.surveys[0].subject);
-        expect(title[1].textContent).toEqual(props.surveys[1].subject);
+        expect(title[0].textContent).toEqual(props.surveys[0].subject.toString());
+        expect(title[1].textContent).toEqual(props.surveys[1].subject.toString());
         const count = TestUtils.scryRenderedDOMComponentsWithClass(content, 'ut-count');
-        expect(count[0].textContent).toEqual(props.surveys[0].count);
-        expect(count[1].textContent).toEqual(props.surveys[1].count);
+        expect(count[0].textContent).toEqual(props.surveys[0].count.toString());
+        expect(count[1].textContent).toEqual(props.surveys[1].count.toString());
     });
 
     it('survey list: if this survey has feedback, it cannot edit', () => {
         const title = TestUtils.scryRenderedDOMComponentsWithClass(content, 'ut-title');
-        expect(title[0].getAttribute('data-num')).toMatch(10);
-        expect(title[1].getAttribute('data-num')).toMatch(0);
+        expect(title[0].getAttribute('data-num')).toEqual("10");
+        expect(title[1].getAttribute('data-num')).toEqual("0");
         expect(title[0].classList.length).toEqual(2);
         expect(title[1].classList.length).toEqual(2);
     });

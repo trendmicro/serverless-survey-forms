@@ -8,7 +8,7 @@ import styles from './style.css';
 
 import React from 'react';
 import PureComponent from 'react-pure-render/component';
-import I18Next from 'i18next';
+import I18Next from 'i18next/index';
 
 import Checkbox from '../Checkbox';
 import Radio from '../Radio';

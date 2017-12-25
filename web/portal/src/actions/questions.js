@@ -6,7 +6,7 @@ import * as types from '../constants/ActionTypes';
 import * as values from '../constants/DefaultValues';
 
 // import { push } from 'react-router-redux';
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import Immutable from 'immutable';
 
 import Config from '../config';
@@ -17,31 +17,31 @@ import { setWebpage } from './webpage';
 import { closePopup } from './popup';
 
 export function postSurvey(accountid, postData, token) {
-    return fetch(`${Config.baseURL}/api/v1/mgnt/surveys/${accountid}`, {
+    return axios(`${Config.baseURL}/api/v1/mgnt/surveys/${accountid}`, {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
             authorization: token
         },
-        body: JSON.stringify(postData)
+        data: postData
     });
 }
 
 export function putSurvey(accountid, surveyID, postData, token) {
-    return fetch(`${Config.baseURL}/api/v1/mgnt/surveys/${accountid}/${surveyID}`, {
+    return axios(`${Config.baseURL}/api/v1/mgnt/surveys/${accountid}/${surveyID}`, {
         method: 'PUT',
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
             authorization: token
         },
-        body: JSON.stringify(postData)
+        data: postData
     });
 }
 
 export function getOneSurvey(accountid, surveyID) {
-    return fetch(`${Config.baseURL}/api/v1/surveys/${accountid}/${surveyID}`, {
+    return axios(`${Config.baseURL}/api/v1/surveys/${accountid}/${surveyID}`, {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
@@ -465,7 +465,7 @@ export function saveQuestion() {
         dispatch(setSurveyL10n(newL10n));
 
         return putSurvey(accountid, surveyID, postData, token)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.datetime) {
                     dispatch(saveQuestionsSuccess());
@@ -530,7 +530,7 @@ export function getQuestion(surveyID) {
         const accountid = selectedUser.hasOwnProperty('accountid') ?
             selectedUser.accountid : account.accountid;
         return getOneSurvey(accountid, surveyID)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.surveyid) {
                     const { surveyid, subject, survey, l10n } = data;
@@ -656,7 +656,7 @@ export function deleteSelectedL10n() {
         };
 
         return putSurvey(account.accountid, surveyID, postData, token)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.datetime) {
                     dispatch(saveQuestionsSuccess());
@@ -683,7 +683,7 @@ export function importL10n(l10n) {
             l10n: newL10n
         };
         return putSurvey(account.accountid, surveyID, postData, token)
-            .then(response => response.json())
+            .then(response => response.data)
             .then(data => {
                 if (data.datetime) {
                     dispatch(saveQuestionsSuccess());

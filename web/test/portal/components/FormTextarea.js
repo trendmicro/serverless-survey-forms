@@ -1,15 +1,14 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Textarea from '../../../portal/src/components/Form/Textarea';
 import Question from '../../../portal/src/components/Form/Question';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing Form Textarea Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         data: {
@@ -38,6 +37,6 @@ describe('[Portal] Testing Form Textarea Component', () => {
         const input = TestUtils.scryRenderedDOMComponentsWithClass(content, 'ut-input');
         expect(input.length).toEqual(1);
         expect(input[0].getAttribute('placeholder')).toEqual(props.data.input);
-        expect(input[0].getAttribute('rows')).toEqual(props.data.rows);
+        expect(input[0].getAttribute('rows')).toEqual(props.data.rows.toString());
     });
 });

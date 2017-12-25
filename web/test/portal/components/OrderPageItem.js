@@ -1,15 +1,14 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
 import { wrapInTestContext } from '../../helpers/dnd-test';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Item from '../../../portal/src/components/EditPanel/OrderPage/Item';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing OrderPage Item Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         id: 0,
@@ -36,7 +35,7 @@ describe('[Portal] Testing OrderPage Item Component', () => {
         const component = TestUtils.findRenderedDOMComponentWithClass(contentRoot, 'ut-obj');
 
         // Expect opacity is 1 before drag
-        expect(component.style.opacity).toEqual(1);
+        expect(component.style.opacity).toEqual("1");
 
         const dragItem = TestUtils.findRenderedComponentWithType(contentRoot, Item);
         const targetItem = dragItem.decoratedComponentInstance;
@@ -44,6 +43,6 @@ describe('[Portal] Testing OrderPage Item Component', () => {
         backend.simulateHover([targetItem.getHandlerId()]);
 
         // Expect opacity is 0.1 when hover
-        expect(component.style.opacity).toEqual(0.1);
+        expect(component.style.opacity).toEqual("0.1");
     });
 });

@@ -1,15 +1,14 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Checkbox from '../../../portal/src/components/Form/Checkbox';
 import Question from '../../../portal/src/components/Form/Question';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing Form Checkbox Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const props = {
         data: {

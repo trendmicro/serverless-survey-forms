@@ -1,16 +1,15 @@
+import '../../helpers/env';
 import DomMock from '../../helpers/dom-mock';
 import { wrapInTestContext } from '../../helpers/dnd-test';
-import jsdom from 'mocha-jsdom';
 import expect from 'expect';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import OrderPage from '../../../portal/src/components/EditPanel/OrderPage';
 import Item from '../../../portal/src/components/EditPanel/OrderPage/Item';
 
 DomMock('<html><body></body></html>');
 
 describe('[Portal] Testing OrderPage Component', () => {
-    jsdom({ skipWindowCheck: true });
 
     const fakeData = [{
             page: 1,

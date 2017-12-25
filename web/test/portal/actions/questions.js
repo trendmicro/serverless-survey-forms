@@ -9,6 +9,7 @@ import * as types from '../../../portal/src/constants/ActionTypes';
 import * as values from '../../../portal/src/constants/DefaultValues';
 import Config from '../../../portal/src/config';
 
+DomMock('<html><body></body></html>');
 const mockStore = configureStore([thunkMiddleware]);
 
 describe('[Portal] questions action', () => {
@@ -111,7 +112,7 @@ describe('[Portal] questions action', () => {
 
         expect(
             result[0].questions[0].question[1].id
-        ).toNotEqual(result[0].questions[0].question[0].id);
+        ).not.toEqual(result[0].questions[0].question[0].id);
     });
 
     it('should create an action to delete question', () => {
@@ -416,7 +417,7 @@ describe('[Portal] questions action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .intercept(`/api/v1/mgnt/surveys/${account.accountid}/${surveyID}`, 'PUT', JSON.stringify(postData))
+        .intercept(`/api/v1/mgnt/surveys/${account.accountid}/${surveyID}`, 'PUT', postData)
         .reply(200, { datetime: Date.now() });
 
         const store = mockStore({ account, surveyID, subject, lang, surveyL10n: {}, surveyVersion,
@@ -667,7 +668,7 @@ describe('[Portal] questions action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .intercept(`/api/v1/mgnt/surveys/${account.accountid}/${surveyID}`, 'PUT', JSON.stringify(postData))
+        .intercept(`/api/v1/mgnt/surveys/${account.accountid}/${surveyID}`, 'PUT', postData)
         .reply(200, { datetime: Date.now() });
 
         const store = mockStore({ account, surveyID, subject, lang, surveyL10n, surveyVersion,
@@ -714,7 +715,7 @@ describe('[Portal] questions action', () => {
         nock(Config.baseURL, {
             reqheaders: { 'authorization': token }
         })
-        .intercept(`/api/v1/mgnt/surveys/${account.accountid}/${surveyID}`, 'PUT', JSON.stringify(postData))
+        .intercept(`/api/v1/mgnt/surveys/${account.accountid}/${surveyID}`, 'PUT', postData)
         .reply(200, { datetime: Date.now() });
 
         const store = mockStore({ account, surveyID, lang, surveyL10n, token });

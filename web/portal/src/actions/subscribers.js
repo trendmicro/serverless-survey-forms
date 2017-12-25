@@ -1,5 +1,5 @@
 
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 
 import * as types from '../constants/ActionTypes';
 import Config from '../config';
@@ -26,7 +26,7 @@ export function getSubscribers() {
     return (dispatch, getState) => {
         dispatch({ type: types.REQUEST_SUBSCRIBERS_LIST });
         const { token, surveyID } = getState();
-        return fetch(`${Config.baseURL}/api/v1/mgnt/subscribers/${surveyID}`, {
+        return axios(`${Config.baseURL}/api/v1/mgnt/subscribers/${surveyID}`, {
             method: 'GET',
             credentials: 'same-origin',
             headers: {
@@ -37,7 +37,7 @@ export function getSubscribers() {
             if (response.status >= 400) {
                 return {};
             }
-            return response.json();
+            return response.data;
         })
         .then(data => {
             if (data.hasOwnProperty('email')) {
@@ -74,14 +74,14 @@ export function addSubscriber(email) {
         const method = subscribers.length === 0 ? 'POST' : 'PUT';
         const newEmail = subscribers.concat(email);
         const postData = { email: newEmail };
-        return fetch(`${Config.baseURL}/api/v1/mgnt/subscribers/${surveyID}`, {
+        return axios(`${Config.baseURL}/api/v1/mgnt/subscribers/${surveyID}`, {
             method: method,
             credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
                 authorization: token
             },
-            body: JSON.stringify(postData)
+            data: postData
         })
         .then(response => {
             if (response.status >= 400) {
@@ -121,19 +121,19 @@ export function deleteSubscriber(email) {
         const newEmail = [...subscribers];
         newEmail.splice(idx, 1);
         let method = 'DELETE';
-        let postData = '';
+        let postData = {};
         if (newEmail.length > 0) {
             method = 'PUT';
-            postData = JSON.stringify({ email: newEmail });
+            postData = { email: newEmail };
         }
-        return fetch(`${Config.baseURL}/api/v1/mgnt/subscribers/${surveyID}`, {
+        return axios(`${Config.baseURL}/api/v1/mgnt/subscribers/${surveyID}`, {
             method: method,
             credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
                 authorization: token
             },
-            body: postData
+            data: postData
         })
         .then(response => {
             if (response.status >= 400) {

@@ -1,5 +1,5 @@
 
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 
 import * as types from '../constants/ActionTypes';
 import Config from '../config';
@@ -27,14 +27,14 @@ export function getUsers() {
     return (dispatch, getState) => {
         dispatch({ type: types.REQUEST_USERS_LIST });
         const { token } = getState();
-        return fetch(`${Config.baseURL}/api/v1/mgnt/users`, {
+        return axios(`${Config.baseURL}/api/v1/mgnt/users`, {
             method: 'GET',
             credentials: 'same-origin',
             headers: {
                 authorization: token
             }
         })
-        .then(response => response.json())
+        .then(response => response.data)
         .then(data => {
             dispatch(receiveUsersSuccess(data.users));
         })
@@ -85,14 +85,14 @@ export function changeUserRole(idx, role) {
             role: role
         };
 
-        return fetch(`${Config.baseURL}/api/v1/mgnt/users/`, {
+        return axios(`${Config.baseURL}/api/v1/mgnt/users/`, {
             method: 'PUT',
             credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
                 authorization: token
             },
-            body: JSON.stringify(postData)
+            data: postData
         })
         .then(() => {
             const newUsers = [...users];
