@@ -26,7 +26,7 @@ class Question extends Component {
                     title={id}
                     className={styles.title}
                 >
-                    <div
+                    <span
                         className={styles.text}
                         dangerouslySetInnerHTML={this._handleQuestionTitle(text)}
                     />
