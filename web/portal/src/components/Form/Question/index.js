@@ -41,7 +41,7 @@ class Question extends Component {
 
 }
 
-Question.PropTypes = {
+Question.propTypes = {
     id: PropTypes.number.isRequired,
     text: PropTypes.string,
     required: PropTypes.bool
