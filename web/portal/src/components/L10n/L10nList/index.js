@@ -88,6 +88,7 @@ class L10nList extends PureComponent {
         } else {
             popupActions.setPopup('ReImportL10n');
         }
+        e.preventDefault();
     }
 }
 
