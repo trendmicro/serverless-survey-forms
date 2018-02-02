@@ -57,3 +57,18 @@
 .error {
     padding-left: 0;
 }
+
+html[dir="rtl"] {
+    .bottomWrapper {
+        margin-left: 0;
+        margin-right: 30px;
+    }
+
+    .btn {
+        float: left;
+    }
+
+    .error {
+        padding-right: 0;
+    }
+}

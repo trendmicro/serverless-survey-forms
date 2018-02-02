@@ -14,3 +14,10 @@
 .textarea:-ms-input-placeholder {
     color: #aaa;
 }
+
+html[dir="rtl"] {
+    .textarea {
+        margin-left: 0;
+        margin-right: 20px;
+    }
+}

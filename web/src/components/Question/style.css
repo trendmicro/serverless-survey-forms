@@ -3,9 +3,9 @@
  */
 
 .question {
-	font-size: 16px;
-	display: inline-block;
-	margin: 0 20px 10px 0;
+    font-size: 16px;
+    display: inline-block;
+    margin: 0 20px 10px 0;
     .title {
         &:before {
             content: attr(title) ".";
@@ -26,4 +26,24 @@
     }
 }
 
-
+html[dir="rtl"] {
+    .question {
+        margin: 0 0 10px 20px;
+        .title {
+            &:before {
+                margin-right: 0;
+                margin-left: 5px;
+                float: right;
+            }
+        }
+    }
+    .question.required {
+        padding-left: 0;
+        padding-right: 20px;
+        &:before {
+            float: right;
+            margin-left: 0;
+            margin-right: -15px;
+        }
+    }
+}
