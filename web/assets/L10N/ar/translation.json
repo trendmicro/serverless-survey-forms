@@ -1,0 +1,17 @@
+{
+    "title"                     : "عنوان استمارة الاستطلاع",
+    "description"               : "وصف استمارة الاستطلاع",
+    "prev"                      : "السابق",
+    "next"                      : "التالي",
+    "submit"                    : "إرسال",
+    "participate"               : "مشاركة",
+    "error_required"            : "(مطلوب.)",
+    "error_agree_terms"         : "الرجاء تحديد خانة الاختيار وإدخال عنوان بريدك الإلكتروني.",
+    "error_email_required"      : "الرجاء إدخال عنوان بريدك الإلكتروني.",
+    "error_email_incorrect"     : "الرجاء كتابة عنوان بريد إلكتروني بتنسيق صحيح.",
+    "privacy_policy"            : "من خلال إدخال عنوان بريدك الإلكتروني، فإنك توافق على <a href=\"__url__\" target=\"_blank\">سياسة الخصوصية لـ Trend Micro</a>",
+    "privacy_description"       : "نشكرك على مشاركة تعليقاتك مع Trend Micro.",
+    "privacy_label"             : "إذا كان لدى Trend Micro استطلاع متابعة، فهل تريد المشاركة فيه؟",
+    "privacy_terms"             : "نعم، تستطيع Trend Micro التواصل معي على هذا العنوان:",
+    "privacy_input"             : "اكتب عنوان بريدك الإلكتروني"
+}

@@ -1,0 +1,17 @@
+{
+    "title"                     : "Titel på frågeformuläret",
+    "description"               : "Beskrivning av frågeformuläret",
+    "prev"                      : "Föreg",
+    "next"                      : "Nästa",
+    "submit"                    : "Skicka in",
+    "participate"               : "Delta",
+    "error_required"            : "(Obligatorisk.)",
+    "error_agree_terms"         : "Var god markera kryssrutan och ange din e-postadress.",
+    "error_email_required"      : "Var god ange din e-postadress.",
+    "error_email_incorrect"     : "Var god ange en e-postadress i rätt format.",
+    "privacy_policy"            : "Genom att ange din e-postadress godkänner du <a href=\"__url__\" target=\"_blank\">Trend Micros sekretesspolicy</a>",
+    "privacy_description"       : "Tack för din feedback till Trend Micro.",
+    "privacy_label"             : "Om Trend Micro har en uppföljande undersökning, skulle du vilja delta?",
+    "privacy_terms"             : "Ja, Trend Micro kan nå mig på denna adress:",
+    "privacy_input"             : "Ange din e-postadress"
+}

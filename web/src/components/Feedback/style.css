@@ -172,6 +172,15 @@
     height: 96px;
 }
 
+html[dir="rtl"] {
+    .header {
+        .close {
+            right: auto;
+            left: 10px;
+        }
+    }
+}
+
 /* Tablet and Mobile Styles */
 @media only screen and (max-width: 959px) {
     .container {

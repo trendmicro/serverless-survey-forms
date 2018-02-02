@@ -1,0 +1,17 @@
+{
+    "title"                     : "Titolo del modulo del sondaggio",
+    "description"               : "Descrizione del modulo del sondaggio",
+    "prev"                      : "Indietro",
+    "next"                      : "Avanti",
+    "submit"                    : "Invia",
+    "participate"               : "Partecipa",
+    "error_required"            : "(Obbligatorio)",
+    "error_agree_terms"         : "Selezionare la casella di controllo e specificare l'indirizzo e-mail.",
+    "error_email_required"      : "Specificare l'indirizzo e-mail.",
+    "error_email_incorrect"     : "Inserire l'indirizzo e-mail nel formato corretto.",
+    "privacy_policy"            : "Specificando l'indirizzo e-mail si accetta <a href=\"__url__\" target=\"_blank\">l'Informativa sulla privacy di Trend Micro</a>",
+    "privacy_description"       : "Grazie per commenti forniti a Trend Micro.",
+    "privacy_label"             : "Si desidera partecipare a un eventuale sondaggio supplementare di Trend Micro?",
+    "privacy_terms"             : "Sì, Trend Micro può raggiungermi a questo indirizzo:",
+    "privacy_input"             : "Inserire l'indirizzo e-mail"
+}

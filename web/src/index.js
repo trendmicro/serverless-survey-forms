@@ -27,6 +27,7 @@ import Survey from './containers/Survey/';
 
 const store = configureStore();
 const history = syncHistoryWithStore(browserHistory, store);
+const localeList = ['ar', 'de', 'en-us', 'es', 'fr', 'fr-ca', 'it', 'pt', 'ru', 'sv', 'zh-tw'];
 
 function getPromise(fetchFunc, ...extraParams) {
     return new Promise((resolve, reject) => {
@@ -34,12 +35,26 @@ function getPromise(fetchFunc, ...extraParams) {
     });
 }
 
+function getLocaleWhiteList(_locale) {
+    if (localeList.indexOf(_locale.toLowerCase()) < 0) {
+        // handle language code for default value
+        const _langCode = _locale.split('-')[0];
+        if (['ar', 'de', 'es', 'fr', 'it', 'pt', 'ru', 'sv'].indexOf(_langCode) >= 0) {
+            return _langCode;
+        }
+        return 'en-us';
+    }
+    return _locale;
+}
+
 function i18nSetting(resolve, reject, locale) {
     I18Next
     .use(XHR)
     .init({
         lng: locale,
-        fallbackLng: 'en-US',
+        lowerCaseLng: true,
+        whitelist: localeList,
+        fallbackLng: 'en-us',
         debug: false,
         ns: 'translation',
         backend: {
@@ -51,6 +66,11 @@ function i18nSetting(resolve, reject, locale) {
         },
         load: 'currentOnly'
     }, () => {
+        const html = document.querySelector('html');
+        html.setAttribute('lang', locale);
+        if (locale === 'ar') {
+            html.setAttribute('dir', 'RTL');
+        }
         resolve('i18next init');
         $('[data-i18n]').localize();
     });
@@ -74,10 +94,11 @@ class App extends PureComponent {
         // set locale by parameter
         // if no parameter, set locale by browser language
         // navigator.userLanguage is for IE < 11
-        const locale = props.locale ||
+        let locale = props.locale ||
             navigator.languages && navigator.languages[0] ||
             navigator.language ||
             navigator.userLanguage;
+        locale = getLocaleWhiteList(locale);
         const settings = Object.assign({}, props, { locale: locale });
 
         store.dispatch(SettingsActions.settings(settings));

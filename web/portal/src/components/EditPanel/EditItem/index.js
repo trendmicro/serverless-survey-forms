@@ -193,7 +193,7 @@ class EditItem extends Component {
     }
 }
 
-EditItem.PropTypes = {
+EditItem.propTypes = {
     id: PropTypes.number.isRequired,
     data: PropTypes.object.isRequired,
     onChangeHandle: PropTypes.func.isRequired

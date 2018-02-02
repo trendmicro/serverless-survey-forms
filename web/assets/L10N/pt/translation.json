@@ -1,0 +1,17 @@
+{
+    "title"                     : "Título do formulário de pesquisa",
+    "description"               : "Descrição do formulário de pesquisa",
+    "prev"                      : "Anterior",
+    "next"                      : "Próxima",
+    "submit"                    : "Enviar",
+    "participate"               : "Participar",
+    "error_required"            : "(Obrigatório.)",
+    "error_agree_terms"         : "Marque a caixa de seleção e forneça seu endereço de e-mail.",
+    "error_email_required"      : "Forneça seu endereço de e-mail.",
+    "error_email_incorrect"     : "Digite um endereço de e-mail no formato correto.",
+    "privacy_policy"            : "Ao fornecer seu endereço de e-mail, você concorda com a <a href=\"__url__\" target=\"_blank\">Política de Privacidade da Trend Micro</a>",
+    "privacy_description"       : "Obrigado por compartilhar sua opinião com a Trend Micro.",
+    "privacy_label"             : "Se a Trend Micro tiver uma pesquisa posterior, você gostaria de participar?",
+    "privacy_terms"             : "Sim, a Trend Micro pode me encontrar neste endereço:",
+    "privacy_input"             : "Digite seu endereço de e-mail"
+}
