@@ -146,7 +146,7 @@ class EditQuestion extends PureComponent {
                 <div className={styles.title}>Question Type</div>
                 <div className={styles.select}>
                     <Select
-                        id={0}
+                        id="editSelect"
                         item={item}
                         selectedItem={editQuestion.type}
                         onChangeHandle={this._onTypeChange}

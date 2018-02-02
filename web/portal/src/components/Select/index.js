@@ -113,7 +113,10 @@ class Select extends PureComponent {
 }
 
 Select.propTypes = {
-    id: PropTypes.number.isRequired,
+    id: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
     item: PropTypes.array.isRequired,
     selectedItem: PropTypes.string,
     disabled: PropTypes.bool,

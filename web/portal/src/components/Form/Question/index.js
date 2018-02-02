@@ -47,6 +47,8 @@ Question.propTypes = {
     required: PropTypes.bool
 };
 
-Question.defaultProps = {};
+Question.defaultProps = {
+    id: 1
+};
 
 export default Question;
