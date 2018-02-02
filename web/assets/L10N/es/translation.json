@@ -1,0 +1,17 @@
+{
+    "title"                     : "Título del formulario de la encuesta",
+    "description"               : "Descripción del formulario de la encuesta",
+    "prev"                      : "Anterior",
+    "next"                      : "Siguiente",
+    "submit"                    : "Enviar",
+    "participate"               : "Participar",
+    "error_required"            : "(Obligatorio.)",
+    "error_agree_terms"         : "Marque la casilla de verificación y facilite su dirección de correo electrónico.",
+    "error_email_required"      : "Facilite su dirección de correo electrónico.",
+    "error_email_incorrect"     : "Escriba una dirección de correo electrónico en el formato correcto.",
+    "privacy_policy"            : "Al proporcionar su dirección de correo electrónico, usted acepta la <a href=\"__url__\" target=\"_blank\">Política de confidencialidad de Trend Micro</a>",
+    "privacy_description"       : "Gracias por compartir sus comentarios con Trend Micro.",
+    "privacy_label"             : "Si Trend Micro tiene una encuesta de seguimiento, ¿le gustaría participar en ella?",
+    "privacy_terms"             : "Sí, Trend Micro puede ponerse en contacto conmigo en esta dirección:",
+    "privacy_input"             : "Escriba su dirección de correo electrónico"
+}
