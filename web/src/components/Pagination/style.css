@@ -93,6 +93,53 @@
     position: relative;
 }
 
+html[dir="rtl"] {
+    .btnWrapperNext {
+        left: auto;
+        right: 50%;
+        margin: 20px 216px 20px 0;
+    }
+
+    .btnWrapperPrev {
+        right: auto;
+        left: 50%;
+        margin: 20px 0 20px 216px;
+    }
+
+    .pagingBtnNext {
+        float: left;
+    }
+
+    .pagingBtnPrev {
+        float: right;
+    }
+
+    .progress {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .progressComplete {
+        border-radius: 5px;
+    }
+
+    .progressText {
+        left: auto;
+        right: 20px;
+    }
+
+    .btnWrapperNextPreview {
+        left: auto;
+        right: 50%;
+        margin: 16px 5px 20px 0;
+    }
+
+    .btnWrapperPrevPreview {
+        right: auto;
+        left: 50%;
+        margin: 16px 0 20px 5px;
+    }
+}
+
 @media only screen and (max-width: 639px) {
     .pagination, .paginationPreview {
         height: 60px;
@@ -120,7 +167,6 @@
         left: 4px;
         background: url(../../../assets/images/component/ic_back_mobile_normal.png) 0 0 no-repeat;
         background-size: 100%;
-
     }
 
     .nextMobile {
@@ -135,5 +181,22 @@
         right: 4px;
         background: url(../../../assets/images/component/ic_next_mobile_normal.png) 0 0 no-repeat;
         background-size: 100%;
+    }
+
+    html[dir="rtl"] {
+        .prevMobile {
+            left: 0;
+            right: 4px;
+        }
+
+        .nextMobile {
+            right: auto;
+            left: 4px;
+        }
+
+        .doneMobile {
+            right: auto;
+            left: 4px;
+        }
     }
 }

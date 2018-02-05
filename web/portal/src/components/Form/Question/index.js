@@ -26,7 +26,7 @@ class Question extends Component {
                     title={id}
                     className={styles.title}
                 >
-                    <div
+                    <span
                         className={styles.text}
                         dangerouslySetInnerHTML={this._handleQuestionTitle(text)}
                     />
@@ -41,12 +41,14 @@ class Question extends Component {
 
 }
 
-Question.PropTypes = {
+Question.propTypes = {
     id: PropTypes.number.isRequired,
     text: PropTypes.string,
     required: PropTypes.bool
 };
 
-Question.defaultProps = {};
+Question.defaultProps = {
+    id: 1
+};
 
 export default Question;

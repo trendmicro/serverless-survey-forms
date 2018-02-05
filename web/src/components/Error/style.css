@@ -3,3 +3,9 @@
     color: #D63833;
     font-size: 14px;
 }
+
+html[dir="rtl"] {
+    .error {
+        padding: 10px 10px 10px 0;
+    }
+}

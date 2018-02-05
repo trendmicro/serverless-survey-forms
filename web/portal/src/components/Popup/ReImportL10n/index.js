@@ -28,9 +28,11 @@ class ReImportL10n extends PureComponent {
         const { selectedL10n, surveyL10n } = this.props;
         const originJson = surveyL10n[selectedL10n];
         const orderedJson = {};
-        Object.keys(originJson).sort().forEach((key) => {
-            orderedJson[key] = originJson[key];
-        });
+        if (originJson) {
+            Object.keys(originJson).sort().forEach((key) => {
+                orderedJson[key] = originJson[key];
+            });
+        }
 
         return (
             <div className={`${styles.popup} popup`}>

@@ -1,0 +1,17 @@
+{
+    "title"                     : "Titre du formulaire d'enquête",
+    "description"               : "Description du formulaire d'enquête",
+    "prev"                      : "Préc.",
+    "next"                      : "Suiv.",
+    "submit"                    : "Envoyer",
+    "participate"               : "Participer",
+    "error_required"            : "(Obligatoire.)",
+    "error_agree_terms"         : "Activez la case à cocher et indiquez votre adresse e-mail.",
+    "error_email_required"      : "Indiquez votre adresse e-mail.",
+    "error_email_incorrect"     : "Saisissez une adresse e-mail dans un format correct.",
+    "privacy_policy"            : "En fournissant votre adresse e-mail, vous acceptez la <a href=\"__url__\" target=\"_blank\">Politique de confidentialité de Trend Micro</a>",
+    "privacy_description"       : "Votre avis sur Trend Micro nous intéresse.",
+    "privacy_label"             : "Si Trend Micro vous faisait parvenir une enquête de suivi, souhaiteriez-vous y participer ?",
+    "privacy_terms"             : "Oui, Trend Micro peut me contacter à cette adresse :",
+    "privacy_input"             : "Saisissez votre adresse e-mail"
+}

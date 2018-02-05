@@ -82,3 +82,15 @@
         }
     }
 }
+
+html[dir="rtl"] {
+    .selectGrp {
+        .placeholder {
+            padding: 6px 20px 6px 35px;
+            &:after {
+                right: auto;
+                left: 10px;
+            }
+        }
+    }
+}

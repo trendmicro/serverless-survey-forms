@@ -7,7 +7,7 @@
 }
 
 :global .radioItem input[type="radio"] {
-	opacity: 0;
+    opacity: 0;
     width: 20px;
     height: 20px;
     margin-left: -20px;
@@ -69,8 +69,8 @@
 }
 
 :global .radioItem input[type="text"] {
-	margin: 0 0 5px 10px;
-	font-size: 15px;
+    margin: 0 0 5px 10px;
+    font-size: 15px;
     background-color: #fff;
     border: 1px solid #bbb;
     padding: 2px 5px;
@@ -86,6 +86,39 @@
     margin-bottom: 15px;
     font-size: 12px;
     color: #666;
+}
+
+html[dir="rtl"] {
+    .radioGrp {
+        margin-left: 0;
+        margin-right: 35px;
+    }
+
+    :global .radioItem input[type="radio"] {
+        margin-left: 0;
+        margin-right: -20px;
+    }
+
+    :global .radioItem input[type="radio"] + label {
+        padding-left: 0;
+        padding-right: 10px;
+    }
+
+    :global .radioItem input[type="radio"] + label:before {
+        left: auto;
+        right: -20px;
+        margin-right: 0;
+        margin-left: 10px;
+    }
+
+    :global .radioItem input[type="text"] {
+        margin: 0 10px 5px 0;
+    }
+
+    :global .subdescription {
+        margin-left: 0;
+        margin-right: 10px;
+    }
 }
 
 @media only screen and (max-width: 639px) {

@@ -30,7 +30,16 @@ class ImportL10n extends PureComponent {
     render() {
         // language options setting
         const item = [
+            { value: 'ar', label: 'Arabic (Standard)' },
+            { value: 'de', label: 'German (Standard)' },
             { value: 'en-US', label: 'English (United States)' },
+            { value: 'es', label: 'Spanish' },
+            { value: 'fr', label: 'French (Standard)' },
+            { value: 'fr-CA', label: 'French (Canada)' },
+            { value: 'it', label: 'Italian (Standard)' },
+            { value: 'pt', label: 'Portuguese' },
+            { value: 'ru', label: 'Russian' },
+            { value: 'sv', label: 'Swedish' },
             { value: 'zh-TW', label: 'Chinese (Taiwan)' }
         ];
         return (
