@@ -112,9 +112,12 @@ class Select extends PureComponent {
 
 }
 
-Select.PropTypes = {
-    id: PropTypes.number.isRequired,
-    item: PropTypes.object.isRequired,
+Select.propTypes = {
+    id: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
+    item: PropTypes.array.isRequired,
     selectedItem: PropTypes.string,
     disabled: PropTypes.bool,
     onChangeHandle: PropTypes.func.isRequired

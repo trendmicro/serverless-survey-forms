@@ -95,6 +95,39 @@
     color: #666;
 }
 
+html[dir="rtl"] {
+    :global .checkboxGrp {
+        margin-left: 0;
+        margin-right: 35px;
+    }
+
+    :global .checkboxItem input[type="checkbox"] {
+        margin-left: 0;
+        margin-right: -20px;
+    }
+
+    :global .checkboxItem input[type="checkbox"] + label {
+        padding-left: 0;
+        padding-right: 10px;
+    }
+
+    :global .checkboxItem input[type="checkbox"] + label:before {
+        left: auto;
+        right: -20px;
+        margin-right: 0;
+        margin-left: 10px;
+    }
+
+    :global .checkboxItem input[type="text"] {
+        margin: 0 10px 5px 0;
+    }
+
+    :global .subdescription {
+        margin-left: 0;
+        margin-right: 10px;
+    }
+}
+
 @media only screen and (max-width: 639px) {
     :global .checkboxItem input[type="text"] {
         min-width: 90%;

@@ -1,0 +1,17 @@
+{
+    "title"                     : "Titel des Umfrageformulars",
+    "description"               : "Beschreibung des Umfrageformulars",
+    "prev"                      : "Zurück",
+    "next"                      : "Weiter",
+    "submit"                    : "Übermitteln",
+    "participate"               : "Teilnehmen",
+    "error_required"            : "(Erforderlich.)",
+    "error_agree_terms"         : "Markieren Sie das Kontrollkästchen und geben Sie Ihre E-Mail-Adresse ein.",
+    "error_email_required"      : "Geben Sie Ihre E-Mail-Adresse an.",
+    "error_email_incorrect"     : "Geben Sie eine E-Mail-Adresse im richtigen Format an.",
+    "privacy_policy"            : "Durch Bereitstellung Ihrer E-Mail-Adresse stimmen Sie der <a href=\"__url__\" target=\"_blank\">Trend Micro Datenschutzerklärung</a> zu",
+    "privacy_description"       : "Vielen Dank, dass Sie Ihr Feedback an Trend Micro senden.",
+    "privacy_label"             : "Falls Trend Micro eine weitere Umfrage durchführt, möchten Sie an dieser teilnehmen?",
+    "privacy_terms"             : "Ja. Trend Micro kann mich unter dieser Adresse erreichen:",
+    "privacy_input"             : "E-Mail-Adresse eingeben"
+}
