@@ -57,7 +57,7 @@
     "url-loader": "^0.6.2",
     "webpack": "^3.8.1",
     "webpack-dev-middleware": "^1.4.0",
-    "webpack-dev-server": "^2.9.3",
+    "webpack-dev-server": "^3.1.11",
     "webpack-hot-middleware": "^2.18.0"
   },
   "dependencies": {
