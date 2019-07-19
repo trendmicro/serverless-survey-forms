@@ -1,0 +1,123 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application's resources to unify endpoints of S3 and APIGW",
+  "Parameters": {
+    "project": {
+      "Description": "Project name",
+      "Default": "serverless-survey-forms",
+      "Type": "String"
+    },
+    "stage": {
+      "Description": "Stage name",
+      "Type": "String"
+    },
+    "region": {
+      "Description": "Region name",
+      "Type": "String"
+    },
+    "apigwid": {
+      "Description": "API Gateway Id",
+      "Type": "String"
+    },
+    "websiteDomainName": {
+      "Description": "Website domain name",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "WebsiteCDN": {
+      "Type": "AWS::CloudFront::Distribution",
+      "Properties": {
+        "DistributionConfig": {
+          "Comment": {
+            "Fn::Join": ["", ["Cloudfront Distribution pointing to ", {
+              "Ref": "project"
+            }, "-", {
+              "Ref": "stage"
+            }]]
+          },
+          "Enabled": "true",
+          "Aliases": [{
+            "Ref": "websiteDomainName"
+          }],
+          "Origins": [{
+            "DomainName": {
+              "Fn::Join": ["", [{
+                "Ref": "project"
+              }, "-", {
+                "Ref": "stage"
+              }, "-webclient.s3.amazonaws.com"]]
+            },
+            "Id": "WebClientS3",
+            "CustomOriginConfig": {
+              "HTTPPort": "80",
+              "HTTPSPort": "443",
+              "OriginProtocolPolicy": "http-only"
+            }
+          }, {
+            "DomainName": {
+              "Fn::Join": ["", [{
+                "Ref": "apigwid"
+              }, ".execute-api.", {
+                "Ref": "region"
+              }, ".amazonaws.com"]]
+            },
+            "Id": "APIGW",
+            "OriginPath": {
+              "Fn::Join": ["", ["/", {
+                "Ref": "stage"
+              }]]
+            },
+            "CustomOriginConfig": {
+              "HTTPPort": "80",
+              "HTTPSPort": "443",
+              "OriginProtocolPolicy": "match-viewer"
+            }
+          }],
+          "CacheBehaviors": [{
+            "PathPattern": "api/*",
+            "AllowedMethods": ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"],
+            "Compress": "true",
+            "TargetOriginId": "APIGW",
+            "ForwardedValues": {
+              "Headers": ["Authorization", "If-Modified-Since"],
+              "QueryString": "true"
+            },
+            "ViewerProtocolPolicy": "redirect-to-https"
+          }, {
+            "PathPattern": "authentication/*",
+            "AllowedMethods": ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"],
+            "Compress": "true",
+            "TargetOriginId": "APIGW",
+            "ForwardedValues": {
+              "Headers": ["If-Modified-Since"],
+              "QueryString": "true"
+            },
+            "ViewerProtocolPolicy": "redirect-to-https"
+          }],
+          "DefaultCacheBehavior": {
+            "Compress": "true",
+            "DefaultTTL": 3600,
+            "TargetOriginId": "WebClientS3",
+            "ForwardedValues": {
+              "Headers": ["If-Modified-Since"],
+              "QueryString": "true"
+            },
+            "ViewerProtocolPolicy": "allow-all"
+          },
+          "DefaultRootObject": "index.html"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "WebsiteDomainName": {
+      "Description": "URI of WebSite CDN",
+      "Value": {
+        "Fn::Join": ["", ["https://", {
+          "Fn::GetAtt": ["WebsiteCDN", "DomainName"]
+        }]]
+      }
+    }
+  }
+}
