@@ -57,11 +57,10 @@
     "url-loader": "^0.6.2",
     "webpack": "^3.8.1",
     "webpack-dev-middleware": "^1.4.0",
-    "webpack-dev-server": "^2.9.3",
     "webpack-hot-middleware": "^2.18.0"
   },
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.18.1",
     "classnames": "^2.2.5",
     "es5-shim": "^4.5.9",
     "fetch": "^1.1.0",
