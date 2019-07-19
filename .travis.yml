@@ -1,10 +1,9 @@
 language: node_js
 node_js:
-- '6.10.2'
+- '8.16.0'
 before_install:
 - npm install coveralls
 - npm install istanbul
-- npm install -g npm@5.3.0
 install:
 - npm install
 - cd web
@@ -12,9 +11,6 @@ install:
 - cd ..
 script:
 - npm run-script coverage
-- cd web
-- npm test
-- cd ..
 after_success:
 - npm run-script coveralls
 notifications:
