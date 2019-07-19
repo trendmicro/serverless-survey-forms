@@ -16,15 +16,16 @@
   },
   "dependencies": {
     "serverless-client-s3": "^2.0.0",
+    "serverless-finch": "^2.4.2",
     "serverless-meta-sync": "^0.1.0"
   },
   "devDependencies": {
     "aws-sdk": "^2.3.7",
     "chai": "^3.5.0",
-    "dynalite": "^1.0.0",
+    "dynalite": "^2.3.1",
     "istanbul": "^0.4.3",
-    "mocha": "^2.4.5",
+    "mocha": "^6.1.4",
     "node-uuid": "^1.4.7",
-    "serverless-cors-plugin": "^0.4.1"
+    "serverless-offline": "^5.6.0"
   }
 }
