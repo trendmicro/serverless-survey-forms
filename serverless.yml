@@ -1,0 +1,576 @@
+service: serverless-survey-forms
+
+custom:
+    stage: ${opt:stage, 'dev'}
+    region: ${env:REGION}
+    facebook_id: ${env:FACEBOOK_ID}
+    facebook_secret: ${env:FACEBOOK_SECRET}
+    token_secret: ${env:TOKEN_SECRET}
+    websiteDomainName: ${env:WEB_DOMAIN}
+    apiResponseNonCacheTemplate:
+      statusCodes:
+        304:
+          pattern: '304 Not Modified.*'
+        400:
+          pattern: '400 Bad Request:.*'
+        401:
+          pattern: '401 Unauthenticated request:.*'
+        403:
+          pattern: '403 Unauthorized request:.*'
+        404:
+          pattern: '404 Not Found:.*'
+        500:
+          pattern: '500 Internal Server Error:.*'
+    apiRequestTemplate:
+      '{"httpMethod":"$context.httpMethod","queryParams":"$input.params().querystring","pathParams":"$input.params().path","principalId":"$context.authorizer.principalId"}'
+    client:
+      bucketName: "${self:service}-${self:custom.stage}-webclient"
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  description: Qustom serverless-survey-forms
+  versionFunctions: true
+  region: ${opt:region, self:custom.region}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+        - dynamodb:*
+      Resource: "*"
+  environment:
+    SERVERLESS_REGION: ${self:custom.region}
+    TOKEN_SECRET: "${self:custom.token_secret}"
+    PROVIDER_FACEBOOK_ID: "${self:custom.facebook_id}"
+    PROVIDER_FACEBOOK_SECRET: "${self:custom.facebook_secret}"
+    REDIRECT_URI: "${self:custom.websiteDomainName}/authentication/callback/{provider}"
+    REDIRECT_CLIENT_URI: "${self:custom.websiteDomainName}/portal/index.html"
+    SERVERLESS_USERTABLE: "${self:service}-${self:custom.stage}-users"
+    SERVERLESS_SURVEYTABLE: "${self:service}-${self:custom.stage}-surveys"
+    SERVERLESS_FEEDBACKTABLE: "${self:service}-${self:custom.stage}-feedbacks"
+    SERVERLESS_SUBSCRIBERTABLE: "${self:service}-${self:custom.stage}-subscribers"
+
+plugins:
+  - serverless-offline
+  - serverless-finch # for deploy UI to S3
+
+package:
+  exclude:
+    - "node_modules/**"
+    - "scripts/**"
+    - "package-lock.json"
+    - "package.json"
+    - "Dockerfile"
+    - "makefile"
+
+functions:
+    signin:
+      handler: api/signin/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: authentication/signin/{provider}
+            method: get
+            integration: lambda
+            cors: true
+            request:
+              template:
+                application/json: '{"provider":"$input.params("provider")","host":"$input.params().header.get("host")","stage":"$context.stage"}'
+            response:
+              statusCodes:
+                302:
+                  pattern: ''
+                  headers:
+                      Location: integration.response.body.url
+                      Cache-Control: "'no-cache, no-store, must-revalidate'"
+    callback:
+      handler: api/callback/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: authentication/callback/{provider}
+            method: get
+            integration: lambda
+            cors: true
+            request:
+              template:
+                application/json: '{"provider":"$input.params("provider")","code":"$input.params("code")","state":"$input.params("state")","host":"$input.params().header.get("host")","stage":"$context.stage"}'
+            response:
+              statusCodes:
+                302:
+                  pattern: ''
+                  headers:
+                      Location: integration.response.body.url
+    authorize:
+      handler: api/authorize/handler.handler
+    user:
+      handler: api/user/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: api/v1/mgnt/users
+            method: get
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              parameters:
+                querystrings:
+                  startKey: true
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"startKey":"$input.params("startKey")","authAccountid":"$context.authorizer.principalId","op":"listUsers"}'
+            responses:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/users
+            method: put
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":$input.json("$.accountid"),"username":$input.json("$.username"),"email":$input.json("$.email"),"role":$input.json("$.role"),"authAccountid":"$context.authorizer.principalId","op":"updateOneUser"}'
+            responses:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/users/{accountid}
+            method: delete
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":"$input.params("accountid")","authAccountid":"$context.authorizer.principalId","op":"deleteOneUser"}'
+            responses:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/users/me
+            method: get
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"authAccountid":"$context.authorizer.principalId","op":"me"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+    survey:
+      handler: api/survey/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: api/v1/surveys/{accountid}/{surveyid}
+            method: get
+            integration: lambda
+            cors: true
+            request:
+              parameters:
+                header:
+                  If-Modified-Since: true
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":"$input.params("accountid")","surveyid":"$input.params("surveyid")","ifModifiedSince":"$input.params("If-Modified-Since")","op":"getOneSurvey"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/surveys/{accountid}
+            method: get
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              parameters:
+                querystring:
+                  startKey: true
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"startKey":"$input.params("startKey")","accountid":"$input.params("accountid")","authAccountid":"$context.authorizer.principalId","op":"listSurveys"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/surveys/{accountid}
+            method: post
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":"$input.params("accountid")","authAccountid":"$context.authorizer.principalId","subject":$input.json("$.subject"),"survey":$input.json("$.survey"),"l10n":$input.json("$.l10n"),"op":"addOneSurvey"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/surveys/{accountid}/{surveyid}
+            method: put
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":"$input.params("accountid")","surveyid":"$input.params("surveyid")","subject":$input.json("$.subject"),"survey":$input.json("$.survey"),"l10n":$input.json("$.l10n"),"authAccountid":"$context.authorizer.principalId","op":"updateOneSurvey"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/surveys/{accountid}/{surveyid}
+            method: delete
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":"$input.params("accountid")","surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","op":"deleteOneSurvey"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+    feedback:
+      handler: api/feedback/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: api/v1/feedbacks/{surveyid}/{clientid}
+            method: get
+            integration: lambda
+            cors: true
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","clientid":"$input.params("clientid")","op":"getOneFeedback"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/feedbacks/{surveyid}
+            method: get
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              parameters:
+                querystring:
+                  startKey: true
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","startKey":"$input.params("startKey")","authAccountid":"$context.authorizer.principalId","op":"listFeedbacks"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/feedbacks/{surveyid}/{clientid}
+            method: post
+            integration: lambda
+            cors: true
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","clientid":"$input.params("clientid")", "feedback":$input.json("$.feedback"),"op":"addOneFeedback"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/feedbacks/{surveyid}/{clientid}
+            method: put
+            integration: lambda
+            cors: true
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","clientid":"$input.params("clientid")", "feedback":$input.json("$.feedback"),"op":"updateOneFeedback"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/feedbacks/{surveyid}/{clientid}
+            method: delete
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","clientid":"$input.params("startKclientidey")","authAccountid":"$context.authorizer.principalId","op":"deleteFeedbacks"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/feedbacks/{surveyid}
+            method: delete
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","op":"deleteFeedbacks"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+    report:
+      handler: api/report/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: api/v1/mgnt/report/{accountid}/{surveyid}
+            method: get
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"accountid":"$input.params("accountid")","surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","op":"reportFeedbacks"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+    subscriber:
+      handler: api/subscriber/handler.handler
+      timeout: 30
+      memorySize: 512
+      events:
+        - http:
+            path: api/v1/mgnt/subscribers/{surveyid}
+            method: get
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              parameters:
+                header:
+                  If-Modified-Since: true
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","ifModifiedSince":"$input.params("If-Modified-Since")","op":"getSubscribers"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/subscribers/{surveyid}
+            method: post
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","email":$input.json("$.email"),"op":"addSubscribers"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/subscribers/{surveyid}
+            method: put
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","email":$input.json("$.email"),"op":"updateSubscribers"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+        - http:
+            path: api/v1/mgnt/subscribers/{surveyid}
+            method: delete
+            integration: lambda
+            cors: true
+            authorizer: authorize
+            request:
+              template:
+                application/json: '{"apigw":${self:custom.apiRequestTemplate},"surveyid":"$input.params("surveyid")","authAccountid":"$context.authorizer.principalId","op":"deleteSubscribers"}'
+            response:
+              "${self:custom.apiResponseNonCacheTemplate}"
+resources:
+  Resources:
+    WebClientS3:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "${self:service}-${self:custom.stage}-webclient"
+        AccessControl: PublicRead
+        LoggingConfiguration:
+          DestinationBucketName:
+            Ref: WebClientLoggingS3
+          LogFilePrefix: webclient
+        VersioningConfiguration:
+          Status: Enabled
+        WebsiteConfiguration:
+          IndexDocument: index.html
+    WebClientS3Policy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: WebClientS3
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: Allow Public Access to All Objects
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource:
+            - Fn::Join:
+              - ''
+              - - 'arn:aws:s3:::'
+                - Ref: WebClientS3
+                - "/*"
+    WebClientLoggingS3:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "${self:service}-${self:custom.stage}-webclientlogging"
+        AccessControl: LogDeliveryWrite
+    UsersModelDDB:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "${self:service}-${self:custom.stage}-users"
+        AttributeDefinitions:
+        - AttributeName: accountid
+          AttributeType: S
+        KeySchema:
+        - AttributeName: accountid
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    SurveysModelDDB:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "${self:service}-${self:custom.stage}-surveys"
+        AttributeDefinitions:
+        - AttributeName: accountid
+          AttributeType: S
+        - AttributeName: surveyid
+          AttributeType: S
+        - AttributeName: datetime
+          AttributeType: N
+        KeySchema:
+        - AttributeName: accountid
+          KeyType: HASH
+        - AttributeName: surveyid
+          KeyType: RANGE
+        LocalSecondaryIndexes:
+        - IndexName: datetime-ix
+          KeySchema:
+          - AttributeName: accountid
+            KeyType: HASH
+          - AttributeName: datetime
+            KeyType: RANGE
+          Projection:
+            ProjectionType: KEYS_ONLY
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    FeedbacksModelDDB:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "${self:service}-${self:custom.stage}-feedbacks"
+        AttributeDefinitions:
+        - AttributeName: surveyid
+          AttributeType: S
+        - AttributeName: clientid
+          AttributeType: S
+        - AttributeName: datetime
+          AttributeType: N
+        KeySchema:
+        - AttributeName: surveyid
+          KeyType: HASH
+        - AttributeName: clientid
+          KeyType: RANGE
+        LocalSecondaryIndexes:
+        - IndexName: datetime-ix
+          KeySchema:
+          - AttributeName: surveyid
+            KeyType: HASH
+          - AttributeName: datetime
+            KeyType: RANGE
+          Projection:
+            ProjectionType: KEYS_ONLY
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    SubscribersModelDDB:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "${self:service}-${self:custom.stage}-subscribers"
+        AttributeDefinitions:
+        - AttributeName: surveyid
+          AttributeType: S
+        KeySchema:
+        - AttributeName: surveyid
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    IamRoleLambda:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+            - sts:AssumeRole
+        Path: "/"
+    IamPolicyLambda:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: "${self:custom.stage}-${self:service}-lambda"
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:*
+            Resource:
+            - Fn::Join:
+              - ''
+              - - arn:aws:dynamodb:${self:custom.region}:*:table/
+                - Ref: UsersModelDDB
+            - Fn::Join:
+              - ''
+              - - arn:aws:dynamodb:${self:custom.region}:*:table/
+                - Ref: SurveysModelDDB
+            - Fn::Join:
+              - ''
+              - - arn:aws:dynamodb:${self:custom.region}:*:table/
+                - Ref: FeedbacksModelDDB
+            - Fn::Join:
+              - ''
+              - - arn:aws:dynamodb:${self:custom.region}:*:table/
+                - Ref: SubscribersModelDDB
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: arn:aws:logs:${self:custom.region}:*:*
+        Roles:
+        - Ref: IamRoleLambda
+  Outputs:
+    WebClientURI:
+      Description: URI of WebClient in S3 - ${self:service}-${self:custom.stage}-webclient
+      Value:
+        Fn::Join:
+        - ''
+        - - https://
+          - Fn::GetAtt:
+            - WebClientS3
+            - DomainName
+    DynamoDBTableArnUsersModel:
+      Description: ARN of the dynamodb table - ${self:service}-${self:custom.stage}-users
+      Value:
+        Fn::Join:
+        - ''
+        - - arn:aws:dynamodb:${self:custom.region}:*:table/
+          - Ref: UsersModelDDB
+    DynamoDBTableArnSurveysModel:
+      Description: ARN of the dynamodb table - ${self:service}-${self:custom.stage}-surveys
+      Value:
+        Fn::Join:
+        - ''
+        - - arn:aws:dynamodb:${self:custom.region}:*:table/
+          - Ref: SurveysModelDDB
+    DynamoDBTableArnFeedbacksModel:
+      Description: ARN of the dynamodb table - ${self:service}-${self:custom.stage}-feedbacks
+      Value:
+        Fn::Join:
+        - ''
+        - - arn:aws:dynamodb:${self:custom.region}:*:table/
+          - Ref: FeedbacksModelDDB
+    DynamoDBTableArnSubscribersModel:
+      Description: ARN of the dynamodb table - ${self:service}-${self:custom.stage}-Subscribers
+      Value:
+        Fn::Join:
+        - ''
+        - - arn:aws:dynamodb:${self:custom.region}:*:table/
+          - Ref: SubscribersModelDDB
+    IamRoleArnLambda:
+      Description: ARN of the lambda IAM role
+      Value:
+        Fn::GetAtt:
+        - IamRoleLambda
+        - Arn
+  
