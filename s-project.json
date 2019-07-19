@@ -1,0 +1,17 @@
+{
+  "name": "serverless-survey-forms",
+  "custom": {
+    "client": {
+      "bucketName": "${project}-${stage}-webclient"
+    },
+    "meta": {
+      "name": "${project}-meta-sync",
+      "region": "ap-northeast-1"
+    }
+  },
+  "plugins": [
+    "serverless-cors-plugin",
+    "serverless-client-s3",
+    "serverless-meta-sync"
+  ]
+}

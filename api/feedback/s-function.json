@@ -1,0 +1,142 @@
+{
+  "name": "feedback",
+  "runtime": "nodejs4.3",
+  "description": "${project} - ${stage}: ${name}",
+  "customName": "$${functionName}",
+  "customRole": false,
+  "handler": "feedback/handler.handler",
+  "timeout": 60,
+  "memorySize": 512,
+  "authorizer": {},
+  "custom": "$${customTemplate}",
+  "endpoints": [
+    {
+      "path": "api/v1/feedbacks/{surveyid}/{clientid}",
+      "method": "GET",
+      "type": "AWS",
+      "authorizationType": "none",
+      "authorizerFunction": false,
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "clientid": "$input.params('clientid')",
+          "op": "getOneFeedback"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    },
+    {
+      "path": "api/v1/mgnt/feedbacks/{surveyid}",
+      "method": "GET",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {
+        "integration.request.querystring.integrationQueryParam": "method.request.querystring.startKey"
+      },
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "startKey": "$input.params('startKey')",
+          "authAccountid": "$context.authorizer.principalId",
+          "op": "listFeedbacks"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    },
+    {
+      "path": "api/v1/feedbacks/{surveyid}/{clientid}",
+      "method": "POST",
+      "type": "AWS",
+      "authorizationType": "none",
+      "authorizerFunction": false,
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "clientid": "$input.params('clientid')",
+          "feedback": "$input.json('$.feedback')",
+          "op" : "addOneFeedback"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    },
+    {
+      "path": "api/v1/feedbacks/{surveyid}/{clientid}",
+      "method": "PUT",
+      "type": "AWS",
+      "authorizationType": "none",
+      "authorizerFunction": false,
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "clientid": "$input.params('clientid')",
+          "feedback": "$input.json('$.feedback')",
+          "op" : "updateOneFeedback"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    },
+    {
+      "path": "api/v1/mgnt/feedbacks/{surveyid}/{clientid}",
+      "method": "DELETE",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "clientid": "$input.params('clientid')",
+          "authAccountid": "$context.authorizer.principalId",
+          "op" : "deleteFeedbacks"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    },
+    {
+      "path": "api/v1/mgnt/feedbacks/{surveyid}",
+      "method": "DELETE",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "authAccountid": "$context.authorizer.principalId",
+          "op": "deleteFeedbacks"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    }
+  ],
+  "events": [],
+  "environment": {
+    "SERVERLESS_PROJECT": "${project}",
+    "SERVERLESS_STAGE": "${stage}",
+    "SERVERLESS_REGION": "${region}",
+    "SERVERLESS_USERTABLE": "${project}-${stage}-users",
+    "SERVERLESS_SURVEYTABLE": "${project}-${stage}-surveys",
+    "SERVERLESS_FEEDBACKTABLE": "${project}-${stage}-feedbacks",
+    "TOKEN_SECRET": "${tokenSecret}"
+  },
+  "vpc": {
+    "securityGroupIds": [],
+    "subnetIds": []
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "signin",
+  "runtime": "nodejs4.3",
+  "description": "${project} - ${stage}: ${name}",
+  "customName": "$${functionName}",
+  "customRole": false,
+  "handler": "signin/handler.handler",
+  "timeout": 60,
+  "memorySize": 512,
+  "authorizer": {},
+  "custom": "$${customTemplate}",
+  "endpoints": [{
+    "path": "authentication/signin/{provider}",
+    "method": "GET",
+    "type": "AWS",
+    "authorizationType": "none",
+    "authorizerFunction": false,
+    "apiKeyRequired": false,
+    "requestParameters": {},
+    "requestTemplates": {
+      "application/json": "{\"provider\":\"$input.params('provider')\",\"host\":\"$input.params().header.get('host')\",\"stage\":\"$context.stage\"}"
+    },
+    "responses": {
+      "400": {
+        "statusCode": "400"
+      },
+      "default": {
+        "statusCode": "302",
+        "responseParameters": {
+          "method.response.header.Location": "integration.response.body.url",
+          "method.response.header.Cache-Control": "'no-cache, no-store, must-revalidate'"
+        },
+        "responseModels": {},
+        "responseTemplates": {
+          "application/json": ""
+        }
+      }
+    }
+  }],
+  "events": [],
+  "environment": {
+    "SERVERLESS_PROJECT": "${project}",
+    "SERVERLESS_STAGE": "${stage}",
+    "SERVERLESS_REGION": "${region}",
+    "REDIRECT_URI": "${websiteDomainName}/authentication/callback/{provider}",
+    "REDIRECT_CLIENT_URI": "${websiteDomainName}/portal/index.html",
+    "TOKEN_SECRET": "${tokenSecret}",
+    "PROVIDER_FACEBOOK_ID": "${providerFacebookId}",
+    "PROVIDER_FACEBOOK_SECRET": "${providerFacebookSecret}"
+  },
+  "vpc": {
+    "securityGroupIds": [],
+    "subnetIds": []
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "subscriber",
+  "runtime": "nodejs4.3",
+  "description": "${project} - ${stage}: ${name}",
+  "customName": "$${functionName}",
+  "customRole": false,
+  "handler": "subscriber/handler.handler",
+  "timeout": 60,
+  "memorySize": 512,
+  "authorizer": {},
+  "custom": "$${customTemplate}",
+  "endpoints": [
+    {
+      "path": "api/v1/mgnt/subscribers/{surveyid}",
+      "method": "GET",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {
+        "integration.request.header.body-header": "method.request.header.If-Modified-Since"
+      },
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "authAccountid": "$context.authorizer.principalId",
+          "surveyid": "$input.params('surveyid')",
+          "op": "getSubscribers",
+          "ifModifiedSince": "$input.params('If-Modified-Since')"
+        }
+      },
+      "responses": "$${apiResponseTemplate}"
+    }, {
+      "path": "api/v1/mgnt/subscribers/{surveyid}",
+      "method": "POST",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "authAccountid": "$context.authorizer.principalId",
+          "surveyid": "$input.params('surveyid')",
+          "email": "$input.json('$.email')",
+          "op": "addSubscribers"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    }, {
+      "path": "api/v1/mgnt/subscribers/{surveyid}",
+      "method": "PUT",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "email": "$input.json('$.email')",
+          "authAccountid": "$context.authorizer.principalId",
+          "op": "updateSubscribers"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    }, {
+      "path": "api/v1/mgnt/subscribers/{surveyid}",
+      "method": "DELETE",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "surveyid": "$input.params('surveyid')",
+          "authAccountid": "$context.authorizer.principalId",
+          "op": "deleteSubscribers"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    }
+  ],
+  "events": [],
+  "environment": {
+    "SERVERLESS_PROJECT": "${project}",
+    "SERVERLESS_STAGE": "${stage}",
+    "SERVERLESS_REGION": "${region}",
+    "SERVERLESS_USERTABLE": "${project}-${stage}-users",
+    "SERVERLESS_SUBSCRIBERTABLE": "${project}-${stage}-subscribers",
+    "TOKEN_SECRET": "${tokenSecret}"
+  },
+  "vpc": {
+    "securityGroupIds": [],
+    "subnetIds": []
+  }
+}

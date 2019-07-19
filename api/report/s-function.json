@@ -1,0 +1,47 @@
+{
+  "name": "report",
+  "runtime": "nodejs4.3",
+  "description": "${project} - ${stage}: ${name}",
+  "customName": "$${functionName}",
+  "customRole": false,
+  "handler": "report/handler.handler",
+  "timeout": 300,
+  "memorySize": 1024,
+  "authorizer": {},
+  "custom": "$${customTemplate}",
+  "endpoints": [
+    {
+      "path": "api/v1/mgnt/report/{accountid}/{surveyid}",
+      "method": "GET",
+      "type": "AWS",
+      "authorizationType": "CUSTOM",
+      "authorizerFunction": "authorize",
+      "apiKeyRequired": false,
+      "requestParameters": {},
+      "requestTemplates": {
+        "application/json": {
+          "apigw": "$${apiRequestTemplate}",
+          "accountid": "$input.params('accountid')",
+          "surveyid": "$input.params('surveyid')",
+          "authAccountid": "$context.authorizer.principalId",
+          "op": "reportFeedbacks"
+        }
+      },
+      "responses": "$${apiResponseNonCacheTemplate}"
+    }
+  ],
+  "events": [],
+  "environment": {
+    "SERVERLESS_PROJECT": "${project}",
+    "SERVERLESS_STAGE": "${stage}",
+    "SERVERLESS_REGION": "${region}",
+    "SERVERLESS_USERTABLE": "${project}-${stage}-users",
+    "SERVERLESS_SURVEYTABLE": "${project}-${stage}-surveys",
+    "SERVERLESS_FEEDBACKTABLE": "${project}-${stage}-feedbacks",
+    "TOKEN_SECRET": "${tokenSecret}"
+  },
+  "vpc": {
+    "securityGroupIds": [],
+    "subnetIds": []
+  }
+}
