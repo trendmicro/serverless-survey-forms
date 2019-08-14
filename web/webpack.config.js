@@ -36,13 +36,17 @@ var webpackConfig = {
     },
     module: {
         rules: [
-            {
-                test: /\.js?$/,
-                enforce: "pre",
-                loader: 'eslint-loader',
-                include: eslintFolder,
-                exclude: /node_modules/
-            },
+            // 2019.08.14 Sam_Kuo
+            // Temporary skip eslint.
+            // In order to solve WS-2018-0592 issue, the eslint need to upgrade to >4.18.2
+            // However, the old eslint rule is incompatible with new eslint.
+            // {
+            //     test: /\.js?$/,
+            //     enforce: "pre",
+            //     loader: 'eslint-loader',
+            //     include: eslintFolder,
+            //     exclude: /node_modules/
+            // },
             {
                 test: /\.css$/,
                 exclude: /node_modules/,
